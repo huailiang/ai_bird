@@ -57,13 +57,13 @@ public class Reinforcement
     void OnScore(object arg)
     {
         // Debug.Log("score");
-        last_r = 1;
+        last_r = 3;
     }
 
     void OnDied(object arg)
     {
         // Debug.LogWarning("died");
-        last_r = -2;
+        last_r = -1;
     }
 
     public void OnTick()

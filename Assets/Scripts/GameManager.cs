@@ -27,7 +27,11 @@ public class GameManager : MonoBehaviour
 	{
 		if(Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
 		{
-			if(isWaiting) return;
+            if (isWaiting || (isTrainning && isGameStart))
+            {
+                Reinforcement.S.exportQTable();
+                return;
+            }
 			if(!GameManager.S.isGameStart || IsGameOver)
 			{
 				GameControl();

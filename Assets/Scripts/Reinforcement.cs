@@ -26,7 +26,7 @@ public class Reinforcement
         get
         {
             string p = Path.GetDirectoryName(Application.dataPath);
-            return Path.Combine(p, "q_tb.txt");
+            return Path.Combine(p, "q_tb.csv");
         }
     }
 
@@ -57,13 +57,13 @@ public class Reinforcement
     void OnScore(object arg)
     {
         // Debug.Log("score");
-        last_r = 10;
+        last_r = 1;
     }
 
     void OnDied(object arg)
     {
         // Debug.LogWarning("died");
-        last_r = -100;
+        last_r = -10;
     }
 
     public void OnTick()
@@ -99,11 +99,11 @@ public class Reinforcement
         q_table = new Dictionary<int, Row>();
         for (int i = 0; i <= 4; i++)
         {
-            for (int j = 0; j < 5; j++)
+            for (int j = 0; j < 4; j++)
             {
-                for (int k = 0; k < 5; k++)
+                for (int k = 0; k < 4; k++)
                 {
-                    for (int l = 0; l < 5; l++)
+                    for (int l = 0; l < 4; l++)
                     {
                         Row row = new Row() { pad = 0f, stay = 0f };
                         int v = i + j * 10 + k * 100 + l * 1000;

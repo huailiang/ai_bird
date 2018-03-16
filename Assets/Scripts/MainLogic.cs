@@ -134,11 +134,6 @@ public class MainLogic : MonoBehaviour {
 	// 发送监听信息
 	public static void Command(object obj, COMMAND_TYPE command, params object[] args)
 	{
-//		if (null == obj)
-//		{
-//			return;
-//		}
-
 		if (command <= 0 || command >= COMMAND_TYPE.COMMAND_MAX)
 		{
 			return ;

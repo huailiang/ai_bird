@@ -157,10 +157,7 @@ public class MainLogic : MonoBehaviour {
 		{
 			foreach (CommandCallBack cb in runList)
 			{
-//				if (obj != null)
-				{
-					cb(obj, args);
-				}
+				cb(obj, args);
 			}
 		}
 		catch (System.Exception ex)

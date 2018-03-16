@@ -56,8 +56,6 @@ public class GameManager : MonoBehaviour
 		
 		isGameOver = true;
 		MainLogic.Command(this, COMMAND_TYPE.GAME_OVERD);
-		
-		
 	}
 	
 	

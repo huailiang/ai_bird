@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-//using System.Collections.Generic;
 
 public enum SoundType
 {
@@ -14,15 +13,12 @@ public enum SoundType
 public class SoundManager : MonoBehaviour 
 {
 	private static SoundManager instance;
-//	public static SoundManager S { get { return instance; } }
 	private AudioSource _audio;
 	[SerializeField] private Camera    mainCamera;
 	[SerializeField] private AudioClip death;
 	[SerializeField] private AudioClip hit;
 	[SerializeField] private AudioClip plus;
 	[SerializeField] private AudioClip fly;
-
-//	public Dictionary<SoundType, AudioClip> aduioClips;
 
 	void Awake () 
 	{ 
@@ -35,8 +31,6 @@ public class SoundManager : MonoBehaviour
 		if(instance._audio == null)
 		{
 			instance._audio = instance.GetComponent<AudioSource>();
-//			Debug.Log("_audio not exits!");
-//			return;
 		}
 
 		if(instance._audio.isPlaying) instance._audio.Stop();

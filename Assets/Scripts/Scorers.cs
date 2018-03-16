@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-// 支持中文
 public class Scorers : MonoBehaviour 
 {
 	private static Scorers instance;

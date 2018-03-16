@@ -75,7 +75,12 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public void GameOver()
+    public void OnApplicationQuit()
+    {
+        Reinforcement.S.exportQTable();
+    }
+
+    public void GameOver()
 	{
 		isGameOver = true;
 		MainLogic.Command(COMMAND_TYPE.GAME_OVERD);

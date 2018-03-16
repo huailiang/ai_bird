@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class Reinforcement
 {
@@ -20,6 +21,14 @@ public class Reinforcement
     int last_r = 0, last_state = 0;
     bool last_action = false;
 
+    string save_path
+    {
+        get
+        {
+            string p = Path.GetDirectoryName(Application.dataPath);
+            return Path.Combine(p, "q_tb.txt");
+        }
+    }
 
     Dictionary<int, Row> q_table;
 
@@ -36,6 +45,7 @@ public class Reinforcement
         MainLogic.AddCommandHook(COMMAND_TYPE.GAME_START, OnStart);
         MainLogic.AddCommandHook(COMMAND_TYPE.SCORE, OnScore);
         MainLogic.AddCommandHook(COMMAND_TYPE.GAME_OVERD, OnDied);
+        loadQTable();
     }
 
     void OnStart(object o)
@@ -138,6 +148,51 @@ public class Reinforcement
                 q_table[state].stay += add;
             }
             if (add != 0) Debug.Log("rewd:" + rewd + " state:" + state + " _state:" + state_ + " action:" + action + "add:" + add);
+        }
+    }
+
+
+    public void exportQTable()
+    {
+        Debug.Log(save_path);
+        FileStream fs = new FileStream(save_path,FileMode.OpenOrCreate,FileAccess.Write);
+        StreamWriter sw = new StreamWriter(fs);
+        foreach (var item in q_table)
+        {
+            string line = item.Key + "," + item.Value.pad + "," + item.Value.stay;
+            sw.WriteLine(line);
+        }
+        sw.Close();
+        fs.Close();
+    }
+
+
+    private void loadQTable()
+    {
+        if (q_table == null) q_table = new Dictionary<int, Row>();
+        if (File.Exists(save_path))
+        {
+            FileStream fs = new FileStream(save_path, FileMode.Open, FileAccess.Read);
+            StreamReader sr = new StreamReader(fs);
+            while (true)
+            {
+                string line = sr.ReadLine();
+                if (string.IsNullOrEmpty(line)) break;
+                string[] ch = line.Split(':');
+                if (ch.Length >= 3)
+                {
+                    int key = int.Parse(ch[0]);
+                    float pad = float.Parse(ch[1]);
+                    float stay = float.Parse(ch[2]);
+                    Row row = new Row() { stay = stay, pad = pad };
+                    if (!q_table.ContainsKey(key)) q_table.Add(key, row);
+                    else q_table[key] = row;
+                }
+            }
+            sr.Dispose();
+            sr.Close();
+            fs.Close();
+            fs.Dispose();
         }
     }
 }

@@ -63,7 +63,7 @@ public class Reinforcement
     void OnDied(object arg)
     {
         // Debug.LogWarning("died");
-        last_r = -10;
+        last_r = -2;
     }
 
     public void OnTick()

@@ -21,12 +21,12 @@ public class PillarManager : MonoBehaviour
 		
 		if(GameManager.S.isGameStart && Time.time - oldTime > 1.5f)
 		{
-			this.CreateZhuZi();
+			this.CreatePillar();
 			oldTime = Time.time;
 		}
 	}
 	
-	void CreateZhuZi()
+	void CreatePillar()
 	{
 		Pillar pillar = Instantiate(this.pillarTemplate) as Pillar;
 		

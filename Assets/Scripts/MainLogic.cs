@@ -34,26 +34,20 @@ public enum COMMAND_TYPE
 }
 
 // 主要逻辑模块
-public class MainLogic : MonoBehaviour {
+public class MainLogic  {
 
 	private static MainLogic instance = null;
 
-	public static MainLogic S { get { return instance; } }
-	void Awake () { instance = this; }
+	public static MainLogic S { get { if(instance==null) instance =new MainLogic(); return instance; } }
 	
 	// 事件
 	#region Command event
-	public delegate void CommandCallBack(object obj, params object[] args);
+	public delegate void CommandCallBack(params object[] args);
 	static Dictionary<COMMAND_TYPE, Dictionary<string, CommandCallBack>> allCB = new Dictionary<COMMAND_TYPE, Dictionary<string, CommandCallBack>>();
 	
 	// 添加监听
-	public static bool AddCommandHook(string hookName, COMMAND_TYPE command, CommandCallBack cb)
+	public static bool AddCommandHook(COMMAND_TYPE command, CommandCallBack cb)
 	{
-		if (string.IsNullOrEmpty(hookName))
-		{
-			return false;
-		}
-
 		if (command <= 0 || command >= COMMAND_TYPE.COMMAND_MAX)
 		{
 			return false;
@@ -64,75 +58,41 @@ public class MainLogic : MonoBehaviour {
 			allCB.Add(command, new Dictionary<string, CommandCallBack>());
 		}
 
-		Dictionary<string, CommandCallBack> list = allCB[command];
-		if (list.ContainsKey(hookName))
-		{
-			return false;
-		}
-
-		list.Add(hookName, cb);
-
 		return true;
 	}
 	
 	// 删除监听
-	public static bool RemoveCommandHook(string hookName, COMMAND_TYPE command)
+	public static bool RemoveCommandHook(COMMAND_TYPE command)
 	{
-		if (string.IsNullOrEmpty(hookName))
-		{
-			return false;
-		}
-
 		if (command <= 0 || command >= COMMAND_TYPE.COMMAND_MAX)
 		{
 			return false;
 		}
-
 		if (!allCB.ContainsKey(command))
 		{
 			return false;
 		}
-
-		Dictionary<string, CommandCallBack> list = allCB[command];
-		if (!list.ContainsKey(hookName))
+		else
 		{
-			return false;
+			allCB.Remove(command);
+			return true;
 		}
-
-		list.Remove(hookName);
-
-		return true;
 	}
 	
 	// 监听就否存在
-	public static bool FindCommandHook(string hookName, COMMAND_TYPE command)
+	public static bool FindCommandHook( COMMAND_TYPE command)
 	{
-		if (string.IsNullOrEmpty(hookName))
-		{
-			return false;
-		}
 
 		if (command <= 0 || command >= COMMAND_TYPE.COMMAND_MAX)
 		{
 			return false;
 		}
 
-		if (!allCB.ContainsKey(command))
-		{
-			return false;
-		}
-
-		Dictionary<string, CommandCallBack> list = allCB[command];
-		if (!list.ContainsKey(hookName))
-		{
-			return false;
-		}
-
-		return true;
+		return allCB.ContainsKey(command);
 	}
 	
 	// 发送监听信息
-	public static void Command(object obj, COMMAND_TYPE command, params object[] args)
+	public static void Command(COMMAND_TYPE command, params object[] args)
 	{
 		if (command <= 0 || command >= COMMAND_TYPE.COMMAND_MAX)
 		{
@@ -145,24 +105,12 @@ public class MainLogic : MonoBehaviour {
 		}
 
 		Dictionary<string, CommandCallBack> list = allCB[command];
-
-		List<CommandCallBack> runList = new List<CommandCallBack>();
-
-		foreach (KeyValuePair<string, CommandCallBack> kv in list)
+		foreach(var item in list)
 		{
-			runList.Add(kv.Value);
-		}
-
-		try
-		{
-			foreach (CommandCallBack cb in runList)
+			if(item.Value!=null)
 			{
-				cb(obj, args);
+				item.Value(args);
 			}
-		}
-		catch (System.Exception ex)
-		{
-			Debug.Log("Command exception: " + ex.ToString());
 		}
 	}
 	#endregion

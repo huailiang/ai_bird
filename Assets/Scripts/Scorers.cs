@@ -26,23 +26,18 @@ public class Scorers : MonoBehaviour
 
 	public void Plus()
 	{
-		Plus(1);
-	}
-
-	public void Plus(int _mark)
-	{
-		currentMark += _mark;
+		currentMark += 1;
 
 		if(currentMark > maxMark)
 		{
 			maxMark = currentMark;
 			PlayerPrefs.SetInt("MaxMark", maxMark);
-			MainLogic.Command(maxMark, COMMAND_TYPE.BREAKING_RECORDS);
+			MainLogic.Command(COMMAND_TYPE.BREAKING_RECORDS);
 		}
 
-		MainLogic.Command(_mark, COMMAND_TYPE.SCORE);
-		SoundManager.PlaySound(SoundType.Plus);
+		MainLogic.Command(COMMAND_TYPE.SCORE);
 	}
+
 
 	void SetMaxMark()
 	{

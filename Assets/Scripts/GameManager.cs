@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
 	
 	void Update()
 	{
-		if(Input.GetKeyDown(KeyCode.Mouse0))
+		if(Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
 		{
 			if(isWaiting) return;
 			if(!GameManager.S.isGameStart || IsGameOver)
@@ -35,27 +35,43 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+
+	public bool RespondByDecision(bool action)
+	{
+		if(!GameManager.S.isGameStart || IsGameOver)
+		{
+			return false;
+		}
+		else
+		{
+			if(action)
+			{
+				mainBird.FlyUp();
+			}
+			return true;
+		}
+	}
+
 	void GameControl()
 	{
 		if(GameManager.S.isGameOver)
 		{
 			ResetGame();
 			Debug.Log("游戏重置");
-			MainLogic.Command(null, COMMAND_TYPE.GAME_RESET);
+			MainLogic.Command(COMMAND_TYPE.GAME_RESET);
 		}
 		else if(!GameManager.S.isGameStart)
 		{
 			GameManager.S.isGameStart = true;
 			Debug.Log("游戏开始");
-			MainLogic.Command(null, COMMAND_TYPE.GAME_START);
+			MainLogic.Command(COMMAND_TYPE.GAME_START);
 		}
 	}
 
 	public void GameOver()
 	{
-		
 		isGameOver = true;
-		MainLogic.Command(this, COMMAND_TYPE.GAME_OVERD);
+		MainLogic.Command(COMMAND_TYPE.GAME_OVERD);
 	}
 	
 	

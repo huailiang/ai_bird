@@ -27,7 +27,6 @@ public class Bird : MonoBehaviour {
 		}
 		else
 		{
-			SoundManager.PlaySound(SoundType.Hit);
 			GameManager.S.GameOver();
 			Death();
 		}
@@ -52,7 +51,6 @@ public class Bird : MonoBehaviour {
 	{
 		anim.CrossFade("Run", 0f, PlayMode.StopAll);
 		time = GlobalValue.FlyUpTime;
-		SoundManager.PlaySound(SoundType.Fly);
 	}
 
 	// 向上飞
@@ -62,7 +60,6 @@ public class Bird : MonoBehaviour {
 		time -= Time.deltaTime;
 		flySpeed.y = GlobalValue.FlyUpSpeed * Time.deltaTime;
 		transform.Translate(flySpeed);
-		//mesh.transform.eulerAngles = new Vector3(-20,90,0);
 	}
 
 	// 滑翔
@@ -72,7 +69,6 @@ public class Bird : MonoBehaviour {
 		anim["Run"].normalizedTime = 0.1f;
 		flySpeed.y = -GlobalValue.FlyDownSpeed * Time.deltaTime;
 		this.transform.Translate(flySpeed);
-		//this.mesh.transform.eulerAngles = new Vector3(0,90,0);
 	}
 
 	void Death()
@@ -91,8 +87,6 @@ public class Bird : MonoBehaviour {
 		endPos.y = -3.5f;
 		GameManager.S.isWaiting=true;
 		yield return new WaitForSeconds(1f);
-		
-		SoundManager.PlaySound(SoundType.Death);
 
 		float tempTime = 0f;
 		while(tempTime < 0.5f)

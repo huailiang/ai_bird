@@ -36,12 +36,6 @@ public enum COMMAND_TYPE
 // 主要逻辑模块
 public class MainLogic  {
 
-	private static MainLogic instance = null;
-
-	public static MainLogic S { get { if(instance==null) instance =new MainLogic(); return instance; } }
-	
-	// 事件
-	#region Command event
 	public delegate void CommandCallBack(params object[] args);
 	static Dictionary<COMMAND_TYPE, Dictionary<string, CommandCallBack>> allCB = new Dictionary<COMMAND_TYPE, Dictionary<string, CommandCallBack>>();
 	
@@ -113,5 +107,4 @@ public class MainLogic  {
 			}
 		}
 	}
-	#endregion
 }

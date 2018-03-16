@@ -107,7 +107,7 @@ public class Bird : MonoBehaviour {
 
 	public int GetState()
 	{
-		int v = (int)(transform.position.y-1)/2+2;
-		return Mathf.Clamp(v,0,4);
+		int v = (int)(transform.position.y-1)+4;
+		return Mathf.Clamp(v,0,8);
 	}
 }

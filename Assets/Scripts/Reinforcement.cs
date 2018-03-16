@@ -47,13 +47,13 @@ public class Reinforcement
 
 	void OnScore(object arg)
 	{
-		Debug.Log("score");
+		// Debug.Log("score");
 		last_r=1;
 	}
 
 	void OnDied(object arg)
 	{
-		Debug.LogWarning("died");
+		// Debug.LogWarning("died");
 		last_r=-100;
 	}
 
@@ -88,7 +88,7 @@ public class Reinforcement
 	public void Build_Q_Table()
 	{
 		q_table=new Dictionary<int,Row>();
-		for(int i=0;i<5;i++)
+		for(int i=0;i<=8;i++)
 		{
 			for(int j=0;j<5;j++)
 			{
@@ -125,10 +125,6 @@ public class Reinforcement
 	{
 		if(q_table!=null)
 		{
-			if(rewd!=0)
-			{
-				Debug.Log("rewd:"+rewd+" state:"+state+" _state:"+state_);
-			}
 			Row row=q_table[state_];
 			float max=row.pad>row.stay?row.pad:row.stay;
 			float q_target=rewd+gamma*max;
@@ -142,6 +138,7 @@ public class Reinforcement
 			{
 				q_table[state].stay+=add;
 			}
+			if(add!=0) Debug.Log("rewd:"+rewd+" state:"+state+" _state:"+state_+" action:"+action+"add:"+add);
 		}
 	}
 

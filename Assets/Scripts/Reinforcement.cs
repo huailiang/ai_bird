@@ -9,8 +9,6 @@ public class Reinforcement
 
 	 public static Reinforcement S{	get	{	if(s==null)	s=new Reinforcement();	return s;	}	}
 
-	bool action =false;
-
 	// greedy police
 	float epsilon=0.9f;
 
@@ -19,8 +17,6 @@ public class Reinforcement
 
 	//discount factor
 	float gamma=0.9f;
-
-	int max_episodes=10;
 
 	int last_r=0,last_state=0;
 	bool last_action=false;

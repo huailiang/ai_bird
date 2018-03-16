@@ -14,6 +14,12 @@ public class Bird : MonoBehaviour {
 		if(!GameManager.S.isGameStart || GameManager.S.IsGameOver) return;
 		if(time > 0) FlyUpUpdate();
 		else VolplaneUpdate();
+
+		if(transform.position.y<-10||transform.position.y>10)
+		{
+			GameManager.S.GameOver();
+			Death();
+		}
 	}
 
 	// 碰撞

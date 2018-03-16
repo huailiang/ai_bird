@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
 				mainBird.FlyUp();
 			}
 		}
-		if(Time.realtimeSinceStartup-lastSignTime>0.4f)
+		if(Time.realtimeSinceStartup-lastSignTime>1f)
 		{
 			Reinforcement.S.OnTick();
 		}

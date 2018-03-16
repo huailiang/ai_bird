@@ -98,4 +98,10 @@ public class Bird : MonoBehaviour {
 		GameManager.S.isWaiting=false;
 
 	}
+
+	public int GetState()
+	{
+		int v = (int)(transform.position.y-1)/2+2;
+		return Mathf.Clamp(v,0,4);
+	}
 }

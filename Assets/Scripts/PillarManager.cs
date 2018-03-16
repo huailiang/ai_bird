@@ -54,4 +54,30 @@ public class PillarManager : MonoBehaviour
 
 		pillars.Clear();
 	}
+
+	public int GetPillarState()
+	{
+		int ret=0;
+		int[] hex=new int[]{10,100,1000};
+		for(int i=0;i<3;i++)
+		{
+			bool find = false;
+			foreach(var pillar in pillars)
+			{
+				if(pillar.transform.position.x > i*2 && pillar.transform.position.x <= (i+1)*2)
+				{
+					ret+=(pillar.height+1)*hex[i];
+					find=true;
+				}
+			}
+			if(!find)
+			{
+				ret+=hex[i];
+			}
+		}
+		return ret;
+	}
+
+
+
 }

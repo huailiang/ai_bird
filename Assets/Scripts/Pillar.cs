@@ -4,7 +4,7 @@ using System.Collections;
 public class Pillar : MonoBehaviour 
 {
 	private Transform mTransform;
-	
+	public int height = 0;
 	void Awake() { mTransform = this.transform; }
 
 	void Update () 
@@ -24,6 +24,7 @@ public class Pillar : MonoBehaviour
 	{
 		Vector3 pos = mTransform.position;
 		pos.y = height * 2;
+		this.height = height;
 		mTransform.position = pos;
 	}
 }

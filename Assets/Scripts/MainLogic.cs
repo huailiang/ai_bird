@@ -37,7 +37,7 @@ public enum COMMAND_TYPE
 public class MainLogic  {
 
 	public delegate void CommandCallBack(params object[] args);
-	static Dictionary<COMMAND_TYPE, Dictionary<string, CommandCallBack>> allCB = new Dictionary<COMMAND_TYPE, Dictionary<string, CommandCallBack>>();
+	static Dictionary<COMMAND_TYPE, List<CommandCallBack>> allCB = new Dictionary<COMMAND_TYPE, List<CommandCallBack>>();
 	
 	// 添加监听
 	public static bool AddCommandHook(COMMAND_TYPE command, CommandCallBack cb)
@@ -49,7 +49,13 @@ public class MainLogic  {
 
 		if (!allCB.ContainsKey(command))
 		{
-			allCB.Add(command, new Dictionary<string, CommandCallBack>());
+			List<CommandCallBack> list=new List<CommandCallBack>();
+			list.Add(cb);
+			allCB.Add(command, list);
+		}
+		else
+		{
+			allCB[command].Add(cb);
 		}
 
 		return true;
@@ -98,12 +104,12 @@ public class MainLogic  {
 			return ;
 		}
 
-		Dictionary<string, CommandCallBack> list = allCB[command];
+		List<CommandCallBack> list = allCB[command];
 		foreach(var item in list)
 		{
-			if(item.Value!=null)
+			if(item!=null)
 			{
-				item.Value(args);
+				item(args);
 			}
 		}
 	}

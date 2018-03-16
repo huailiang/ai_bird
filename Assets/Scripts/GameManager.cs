@@ -6,18 +6,22 @@ public class GameManager : MonoBehaviour
 	private static GameManager instance;
 	public static GameManager S { get { return instance; } }
 
-	void Awake () { instance = this; }
+	void Awake () { instance = this;  Reinforcement.S.Init();}
 	// 游戏是否开始
 	[HideInInspector] public bool isGameStart = false;
 	// 游戏是否结束
 	[HideInInspector] private bool isGameOver  = false;
 
-	[SerializeField] private Bird mainBird;
+	[SerializeField] public Bird mainBird;
+
+	[SerializeField] public bool isTrainning=true;
 
 	public bool IsGameOver { get { return isGameOver; } }
 	
 	public bool isWaiting=false;
 	
+	private float lastSignTime=0;
+
 	
 	void Update()
 	{
@@ -33,22 +37,9 @@ public class GameManager : MonoBehaviour
 				mainBird.FlyUp();
 			}
 		}
-	}
-
-
-	public bool RespondByDecision(bool action)
-	{
-		if(!GameManager.S.isGameStart || IsGameOver)
+		if(Time.realtimeSinceStartup-lastSignTime>0.2f)
 		{
-			return false;
-		}
-		else
-		{
-			if(action)
-			{
-				mainBird.FlyUp();
-			}
-			return true;
+			Reinforcement.S.OnTick();
 		}
 	}
 
@@ -68,12 +59,42 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	public bool RespondByDecision(bool action)
+	{
+		if(!GameManager.S.isGameStart || IsGameOver)
+		{
+			return false;
+		}
+		else
+		{
+			if(action)
+			{
+				mainBird.FlyUp();
+			}
+			return true;
+		}
+	}
+
 	public void GameOver()
 	{
 		isGameOver = true;
 		MainLogic.Command(COMMAND_TYPE.GAME_OVERD);
+
+		if(isTrainning)
+		{
+			StartCoroutine(RestartGame());
+		}	
 	}
 	
+	//等一段时间再开始 让 reinforcement 把最后一次失败更新到 q_table
+	IEnumerator RestartGame()
+	{
+		yield return new WaitForSecondsRealtime(0.6f);
+		ResetGame();
+		MainLogic.Command(COMMAND_TYPE.GAME_RESET);
+		GameManager.S.isGameStart = true;
+		MainLogic.Command(COMMAND_TYPE.GAME_START);
+	}
 	
 	public void ResetGame()
 	{

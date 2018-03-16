@@ -7,7 +7,7 @@ public class Reinforcement
 
 	 private static Reinforcement s;
 
-	 public static Reinforcement instance{	get	{	if(s==null)	s=new Reinforcement();	return s;	}	}
+	 public static Reinforcement S{	get	{	if(s==null)	s=new Reinforcement();	return s;	}	}
 
 	bool action =false;
 
@@ -38,28 +38,33 @@ public class Reinforcement
 	public void Init()
 	{
 		Build_Q_Table();
+		MainLogic.AddCommandHook(COMMAND_TYPE.GAME_START,OnStart);
 		MainLogic.AddCommandHook(COMMAND_TYPE.SCORE,OnScore);
 		MainLogic.AddCommandHook(COMMAND_TYPE.GAME_OVERD,OnDied);
 	}
 
+	void OnStart(object o)
+	{
+		last_r=0;
+		last_state=0;
+	}
+
 	void OnScore(object arg)
 	{
+		Debug.Log("score");
 		last_r=1;
 	}
 
 	void OnDied(object arg)
 	{
+		Debug.LogWarning("died");
 		last_r=-100;
 	}
 
-	public void OnTick(bool withReset)
+	public void OnTick()
 	{
 		int state = GetCurrentState();
-		if(withReset) 
-		{
-			last_r=0;
-		}
-		else
+		if(last_state!=0)
 		{
 			//cul last loop
 			UpdateState(last_state,state,last_r,last_action);
@@ -76,9 +81,10 @@ public class Reinforcement
 
 	public int GetCurrentState()
 	{
-
-
-		return 0;
+		int p_st = PillarManager.S.GetPillarState();
+		int b_st = GameManager.S.mainBird.GetState();
+		// Debug.Log("pillar: "+p_st+" bird:"+b_st);
+		return p_st+b_st;
 	}
 
 
@@ -86,12 +92,20 @@ public class Reinforcement
 	public void Build_Q_Table()
 	{
 		q_table=new Dictionary<int,Row>();
-		for(int i=0;i<4;i++)
+		for(int i=0;i<5;i++)
 		{
-			for(int j=0;j<4;j++)
+			for(int j=0;j<5;j++)
 			{
-				Row row=new Row(){pad=0f,stay=0f};
-				q_table.Add(i*4+j, row);
+				for(int k=0;k<5;k++)
+				{
+					for(int l=0;l<5;l++)
+					{
+						Row row=new Row(){pad=0f,stay=0f};
+						int v=i+j*10+k*100+l*1000;
+						Debug.Log("i:"+i+" j:"+j+" k:"+k+" l:"+l+" v:"+v);
+						q_table.Add(v, row);
+					}
+				}
 			}
 		}
 	}
@@ -115,6 +129,10 @@ public class Reinforcement
 	{
 		if(q_table!=null)
 		{
+			if(rewd!=0)
+			{
+				Debug.Log("rewd:"+rewd+" state:"+state+" _state:"+state_);
+			}
 			Row row=q_table[state_];
 			float max=row.pad>row.stay?row.pad:row.stay;
 			float q_target=rewd+gamma*max;

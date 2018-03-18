@@ -1,113 +1,124 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Bird : MonoBehaviour {
-	
-	private float time = 0;
-	[SerializeField] private GameObject mesh;
-	[SerializeField] private Animation anim;
+public class Bird : MonoBehaviour
+{
 
-	private Vector3 flySpeed = Vector3.zero;
+    private float time = 0;
+    [SerializeField] private GameObject mesh;
+    [SerializeField] private Animation anim;
 
-	void Update () 
-	{
-		if(!GameManager.S.isGameStart || GameManager.S.IsGameOver) return;
-		if(time > 0) FlyUpUpdate();
-		else VolplaneUpdate();
+    private float bounds = 8;
 
-		if(transform.position.y<-10||transform.position.y>10)
-		{
-			GameManager.S.GameOver();
-			Death();
-		}
-	}
+    private Vector3 flySpeed = Vector3.zero;
 
-	// 碰撞
-	void OnTriggerEnter( Collider other )
-	{
-		if(other.gameObject.tag == "Score")
-		{
-			Scorers.S.Plus();
-		}
-		else
-		{
-			GameManager.S.GameOver();
-			Death();
-		}
-	}
+    void Update()
+    {
+        if (!GameManager.S.isGameStart || GameManager.S.IsGameOver) return;
+        if (time > 0) FlyUpUpdate();
+        else VolplaneUpdate();
 
-	/// <summary>
-	/// 设置小鸟初始位置
-	/// </summary>
-	public void ResetPos()
-	{
-		StopCoroutine("Decline");
-	  	gameObject.GetComponent<Collider>().enabled = true;
-		transform.position 		   = new Vector3(0, 1.5f, 0);
-		mesh.transform.eulerAngles = new Vector3(0, 90, 0);
-		anim.CrossFade("Idle", 0, PlayMode.StopAll);
-	}
+        if (transform.position.y < -bounds || transform.position.y > bounds)
+        {
+            GameManager.S.GameOver();
+            Death();
+        }
+    }
 
-	/// <summary>
-	/// 向上飞
-	/// </summary>
-	public void FlyUp()
-	{
-		anim.CrossFade("Run", 0f, PlayMode.StopAll);
-		time = GlobalValue.FlyUpTime;
-	}
+    // 碰撞
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Score")
+        {
+            Scorers.S.Plus();
 
-	// 向上飞
-	void FlyUpUpdate()
-	{
-		anim["Run"].speed = 1;
-		time -= Time.deltaTime;
-		flySpeed.y = GlobalValue.FlyUpSpeed * Time.deltaTime;
-		transform.Translate(flySpeed);
-	}
+            if (GameManager.S.isTrainning)
+            {
+                GameManager.S.OnEsplisonEnd();
+            }
+        }
+        else
+        {
+            GameManager.S.GameOver();
+            Death();
+        }
+    }
 
-	// 滑翔
-	void VolplaneUpdate()
-	{
-		anim["Run"].speed = 0;
-		anim["Run"].normalizedTime = 0.1f;
-		flySpeed.y = -GlobalValue.FlyDownSpeed * Time.deltaTime;
-		this.transform.Translate(flySpeed);
-	}
+    /// <summary>
+    /// 设置小鸟初始位置
+    /// </summary>
+    public void ResetPos()
+    {
+        StopCoroutine("Decline");
+        gameObject.GetComponent<Collider>().enabled = true;
+        transform.position = new Vector3(0, 1.5f, 0);
+        mesh.transform.eulerAngles = new Vector3(0, 90, 0);
+        anim.CrossFade("Idle", 0, PlayMode.StopAll);
+    }
 
-	void Death()
-	{
-		anim.Stop();
-		GetComponent<Collider>().enabled = false;
-		StopCoroutine("Decline");
-		StartCoroutine("Decline");
-	}
+    /// <summary>
+    /// 向上飞
+    /// </summary>
+    public void FlyUp()
+    {
+        anim.CrossFade("Run", 0f, PlayMode.StopAll);
+        time = GlobalValue.FlyUpTime;
+    }
 
-	IEnumerator Decline()
-	{
-		Vector3 startPos = transform.localPosition;
-		startPos.z=-3;
-		Vector3 endPos   = startPos;
-		endPos.y = -3.5f;
-		GameManager.S.isWaiting=true;
-		yield return new WaitForSeconds(1f);
+    // 向上飞
+    void FlyUpUpdate()
+    {
+        anim["Run"].speed = 1;
+        time -= Time.deltaTime;
+        flySpeed.y = GlobalValue.FlyUpSpeed * Time.deltaTime;
+        transform.Translate(flySpeed);
+    }
 
-		float tempTime = 0f;
-		while(tempTime < 0.5f)
-		{
-			tempTime += Time.deltaTime;
-			transform.localPosition = Vector3.Lerp(startPos, endPos, tempTime / 0.5f);
-			yield return 0;
-		}
-		
-		yield return new WaitForSeconds(0.2f);
-		GameManager.S.isWaiting=false;
+    // 滑翔
+    void VolplaneUpdate()
+    {
+        anim["Run"].speed = 0;
+        anim["Run"].normalizedTime = 0.1f;
+        flySpeed.y = -GlobalValue.FlyDownSpeed * Time.deltaTime;
+        this.transform.Translate(flySpeed);
+    }
 
-	}
+    void Death()
+    {
+        anim.Stop();
+        GetComponent<Collider>().enabled = false;
+        StopCoroutine(Decline());
+        StartCoroutine(Decline());
+    }
 
-	public int GetState()
-	{
-		int v = (int)(transform.position.y-1)/2+2;
-		return Mathf.Clamp(v,0,4);
-	}
+    IEnumerator Decline()
+    {
+        Vector3 startPos = transform.localPosition;
+        startPos.z = -3;
+        Vector3 endPos = startPos;
+        endPos.y = -3.5f;
+        if (!GameManager.S.isTrainning)
+        {
+            GameManager.S.isWaiting = true;
+            yield return new WaitForSeconds(1f);
+
+            float tempTime = 0f;
+            while (tempTime < 0.5f)
+            {
+                tempTime += Time.deltaTime;
+                transform.localPosition = Vector3.Lerp(startPos, endPos, tempTime / 0.5f);
+                yield return 0;
+            }
+
+            yield return new WaitForSeconds(0.2f);
+        }
+        GameManager.S.isWaiting = false;
+    }
+
+    public int GetState()
+    {
+        int v = (int)(transform.position.y - 1) / 2 + 2;
+        return Mathf.Clamp(v, 0, 4);
+    }
+
 }

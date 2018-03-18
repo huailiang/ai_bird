@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
+using UnityEngine;
 
 public class Reinforcement
 {
@@ -38,38 +38,42 @@ public class Reinforcement
         public float stay;
     }
 
-
     public void Init()
     {
         Build_Q_Table();
         MainLogic.AddCommandHook(COMMAND_TYPE.GAME_START, OnStart);
         MainLogic.AddCommandHook(COMMAND_TYPE.SCORE, OnScore);
+        MainLogic.AddCommandHook(COMMAND_TYPE.COMMAND_MAX, OnScore);
         MainLogic.AddCommandHook(COMMAND_TYPE.GAME_OVERD, OnDied);
         loadQTable();
     }
 
     void OnStart(object o)
     {
+        last_r = 1;
         last_r = 0;
-        last_state = 0;
+        last_state = -1;
     }
 
     void OnScore(object arg)
     {
-        // Debug.Log("score");
-        last_r = 3;
+        Debug.Log("score");
+        last_r = 20;
     }
 
     void OnDied(object arg)
     {
-        // Debug.LogWarning("died");
-        last_r = -1;
+        // Debug.LogWarning ("died");
+        last_r = -10;
     }
 
+    /*
+    comment: tick time is 15f
+     */
     public void OnTick()
     {
         int state = GetCurrentState();
-        if (last_state != 0)
+        if (last_state != -1)
         {
             //cul last loop
             UpdateState(last_state, state, last_r, last_action);
@@ -77,44 +81,40 @@ public class Reinforcement
 
         //do next loop
         bool action = choose_action(state);
-        //Debug.Log("pillar: " + state + " action:" + action);
         GameManager.S.RespondByDecision(action);
-        last_r = 0;
+        last_r = 1;
         last_state = state;
         last_action = action;
     }
 
-
     public int GetCurrentState()
     {
-        int p_st = PillarManager.S.GetPillarState();
-        int b_st = GameManager.S.mainBird.GetState();
-        
-        return p_st + b_st;
+        // int p_st = PillarManager.S.GetPillarState();
+        // int b_st = GameManager.S.mainBird.GetState();
+        // return p_st + b_st;
+        return GameManager.S.mainBird.GetState();
     }
 
-
+    //柱子一共有3x3+1=10种状态
+    //加上鸟 一共5x10=50个状态
     public void Build_Q_Table()
     {
         q_table = new Dictionary<int, Row>();
         for (int i = 0; i <= 4; i++)
         {
-            for (int j = 0; j < 4; j++)
-            {
-                for (int k = 0; k < 4; k++)
-                {
-                    for (int l = 0; l < 4; l++)
-                    {
-                        Row row = new Row() { pad = 0f, stay = 0f };
-                        int v = i + j * 10 + k * 100 + l * 1000;
-                        Debug.Log("i:" + i + " j:" + j + " k:" + k + " l:" + l + " v:" + v);
-                        q_table.Add(v, row);
-                    }
-                }
-            }
+            // for (int j = 1; j <= 3; j++)
+            // {
+            //     for (int k = 1; k <= 3; k++)
+            //     {
+            //         Row row = new Row() { pad = 0f, stay = 0f };
+            //         int key = i + (int)Mathf.Pow(10, j) * k;
+            //         q_table.Add(key, row);
+            //     }
+            // }
+            Row row2 = new Row() { pad = 0f, stay = 0f };
+            q_table.Add(i, row2);
         }
     }
-
 
     public bool choose_action(int state)
     {
@@ -129,7 +129,9 @@ public class Reinforcement
         }
     }
 
-
+    /**
+        更新 Q_TABLE
+     */
     public void UpdateState(int state, int state_, int rewd, bool action)
     {
         if (q_table != null)
@@ -139,6 +141,7 @@ public class Reinforcement
             float q_target = rewd + gamma * max;
             float q_predict = action ? q_table[state].pad : q_table[state].stay;
             float add = alpha * (q_target - q_predict);
+            if (rewd != 0) Debug.Log("state:" + state + " rewd:" + rewd + " add:" + add);
             if (action)
             {
                 q_table[state].pad += add;
@@ -147,15 +150,17 @@ public class Reinforcement
             {
                 q_table[state].stay += add;
             }
-            if (add != 0) Debug.Log("rewd:" + rewd + " state:" + state + " _state:" + state_ + " action:" + action + "add:" + add);
+            Debug.Log("state:" + state + " rewd:" + rewd + " action:" + action);
         }
     }
 
-
+    /// <summary>
+    /// 导出q_table
+    /// </summary>
     public void exportQTable()
     {
         Debug.Log(save_path);
-        FileStream fs = new FileStream(save_path,FileMode.OpenOrCreate,FileAccess.Write);
+        FileStream fs = new FileStream(save_path, FileMode.OpenOrCreate, FileAccess.Write);
         StreamWriter sw = new StreamWriter(fs);
         foreach (var item in q_table)
         {
@@ -166,7 +171,9 @@ public class Reinforcement
         fs.Close();
     }
 
-
+    /// <summary>
+    /// 游戏进入时 加载q_table
+    /// </summary>
     private void loadQTable()
     {
         if (q_table == null) q_table = new Dictionary<int, Row>();
@@ -190,8 +197,6 @@ public class Reinforcement
                 }
             }
             sr.Dispose();
-            sr.Close();
-            fs.Close();
             fs.Dispose();
         }
     }

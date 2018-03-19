@@ -33,10 +33,10 @@ public class Scorers : MonoBehaviour
         {
             maxMark = currentMark;
             PlayerPrefs.SetInt("MaxMark", maxMark);
-            MainLogic.Command(COMMAND_TYPE.BREAKING_RECORDS);
+            EventHandle.Command(COMMAND_TYPE.BREAKING_RECORDS);
         }
 
-        MainLogic.Command(COMMAND_TYPE.SCORE);
+        EventHandle.Command(COMMAND_TYPE.SCORE);
     }
 
 
@@ -60,11 +60,11 @@ public class Scorers : MonoBehaviour
     void OnGUI()
     {
         GUI.skin.label.fontSize = 25;
-        GUI.color = currentMarkColor;
-        GUI.Label(new Rect(20, 20, 250, 40), string.Format("当前分：{0}", currentMark.ToString()));
-        GUI.color = UnityEngine.Color.red;
-        GUI.Label(new Rect(20, 60, 250, 40), string.Format("最高分：{0}", maxMark.ToString()));
+        // GUI.color = currentMarkColor;
+        // GUI.Label(new Rect(20, 20, 250, 40), string.Format("当前分：{0}", currentMark.ToString()));
+        // GUI.color = UnityEngine.Color.red;
+        // GUI.Label(new Rect(20, 60, 250, 40), string.Format("最高分：{0}", maxMark.ToString()));
         GUI.color = UnityEngine.Color.black;
-        GUI.Label(new Rect(20, 100, 250, 40), string.Format("生存时间：{0}", liveTime.ToString()));
+        GUI.Label(new Rect(20, 60, 250, 40), string.Format("生存时间：{0}", liveTime.ToString()));
     }
 }

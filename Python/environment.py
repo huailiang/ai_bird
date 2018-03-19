@@ -9,7 +9,7 @@ import socket
 import subprocess
 import struct
 
-from brain import BrainInfo
+from brain import QLearningTable
 from exception import UnityEnvironmentException, UnityActionException, UnityTimeOutException
 
 from sys import platform

@@ -6,8 +6,14 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     public static GameManager S { get { return instance; } }
 
+    private BaseEnv env;
 
-    void Awake() { instance = this; Reinforcement.S.Init(); }
+    void Awake()
+    {
+        instance = this;
+
+        env.Init();
+    }
 
     void Start()
     {
@@ -38,7 +44,7 @@ public class GameManager : MonoBehaviour
         {
             if (isWaiting || (isTrainning && isGameStart))
             {
-                Reinforcement.S.exportQTable();
+                env.exportQTable();
                 return;
             }
             if (!GameManager.S.isGameStart || IsGameOver)
@@ -52,7 +58,7 @@ public class GameManager : MonoBehaviour
         }
         if (Time.realtimeSinceStartup - lastSignTime > tickTime)
         {
-            Reinforcement.S.OnTick();
+            env.OnTick();
         }
         if (GameManager.S.isGameStart)
         {
@@ -66,13 +72,13 @@ public class GameManager : MonoBehaviour
         {
             ResetGame();
             Debug.Log("游戏重置");
-            MainLogic.Command(COMMAND_TYPE.GAME_RESET);
+            EventHandle.Command(COMMAND_TYPE.GAME_RESET);
         }
         else if (!GameManager.S.isGameStart)
         {
             GameManager.S.isGameStart = true;
             Debug.Log("游戏开始");
-            MainLogic.Command(COMMAND_TYPE.GAME_START);
+            EventHandle.Command(COMMAND_TYPE.GAME_START);
         }
     }
 
@@ -94,13 +100,13 @@ public class GameManager : MonoBehaviour
 
     public void OnApplicationQuit()
     {
-        Reinforcement.S.exportQTable();
+        env.exportQTable();
     }
 
     public void GameOver()
     {
         isGameOver = true;
-        MainLogic.Command(COMMAND_TYPE.GAME_OVERD);
+        EventHandle.Command(COMMAND_TYPE.GAME_OVERD);
 
         if (isTrainning)
         {
@@ -122,9 +128,9 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(tickTime);
         ResetGame();
-        MainLogic.Command(COMMAND_TYPE.GAME_RESET);
+        EventHandle.Command(COMMAND_TYPE.GAME_RESET);
         GameManager.S.isGameStart = true;
-        MainLogic.Command(COMMAND_TYPE.GAME_START);
+        EventHandle.Command(COMMAND_TYPE.GAME_START);
         Scorers.S.SetLiveTime(true);
     }
 

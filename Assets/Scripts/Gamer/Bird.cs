@@ -8,7 +8,7 @@ public class Bird : MonoBehaviour
     [SerializeField] private GameObject mesh;
     [SerializeField] private Animation anim;
 
-    private float bounds = 8;
+    private float bounds = 4.1f;
 
     private Vector3 flySpeed = Vector3.zero;
 
@@ -117,8 +117,8 @@ public class Bird : MonoBehaviour
 
     public int GetState()
     {
-        int v = (int)(transform.position.y - 1) / 2 + 2;
-        return Mathf.Clamp(v, 0, 4);
+        int v = (int)transform.position.y + 4;
+        return Mathf.Clamp(v, 0, 8);
     }
 
 }

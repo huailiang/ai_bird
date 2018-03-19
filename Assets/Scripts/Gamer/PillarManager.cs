@@ -17,13 +17,16 @@ public class PillarManager : MonoBehaviour
     {
         if (GameManager.S.IsGameOver)
         {
+            oldTime = 0;
             return;
         }
 
         if (GameManager.S.isGameStart && Time.time - oldTime > 1.5f)
         {
-            // this.CreatePillar();
-            oldTime = Time.time;
+#if ENABLE_PILLAR
+            this.CreatePillar();
+            oldTime = 10000;//Time.time;
+#endif
         }
     }
 
@@ -33,8 +36,8 @@ public class PillarManager : MonoBehaviour
 
         pillar.transform.position = new Vector3(12, 0, 0);
         pillar.transform.localScale = Vector3.one;
-        int height = Random.Range(0, 3);
-        pillar.SetHeight(height);
+        // int height = Random.Range(0, 3);
+        pillar.SetHeight(1);//height);
         pillars.Add(pillar);
     }
 
@@ -56,6 +59,21 @@ public class PillarManager : MonoBehaviour
         pillars.Clear();
     }
 
+
+    public int GetPillarMiniState()
+    {
+        int ret = 0;
+        if (pillars.Count > 0)
+        {
+            float _dis = pillars[0].transform.position.x;
+            if (_dis < 0) ret = 0;
+            else if (_dis <= 2) ret = 1;
+            else if (_dis <= 4) ret = 2;
+            else if (_dis <= 6) ret = 3;
+            else ret = 4;
+        }
+        return ret * 10;
+    }
 
     //优化 只计算离自己最近的柱子的状态
     // 这样做 柱子最多有9个状态 
@@ -83,36 +101,6 @@ public class PillarManager : MonoBehaviour
             else if (_dis < 4) ret = 100 * (pillar.height + 1);
             else if (_dis < 6) ret = 1000 * (pillar.height + 1);
         }
-        return ret;
-    }
-
-
-    public int GetNextPillarState()
-    {
-        int ret = 0;
-        pillars.Sort((x, y) =>
-        {
-            float _x = x.transform.position.x;
-            float _y = y.transform.position.x;
-            return (int)_x - (int)_y;
-        });
-        float _dis = 1000;
-        Pillar pillar = null;
-        if (pillars.Count > 0)
-        {
-            for (int i = 0; i < pillars.Count; i++)
-            {
-                Vector3 pos = pillars[i].transform.position;
-                if (pos.x > 0 && pos.x < _dis)
-                {
-                    _dis = pos.x;
-                    pillar = pillars[i];
-                }
-            }
-        }
-
-
-
         return ret;
     }
 

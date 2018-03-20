@@ -11,7 +11,6 @@ import struct
 
 from brain import QLearningTable
 from exception import UnityEnvironmentException, UnityActionException, UnityTimeOutException
-
 from sys import platform
 
 logging.basicConfig(level=logging.INFO)
@@ -19,12 +18,13 @@ logger = logging.getLogger("unity")
 
 
 class UnityEnvironment(object):
-    def __init__(self, file_name, worker_id=0,base_port=5005):
+    def __init__(self, file_name, base_port=5006):
         atexit.register(self.close)
-        self.port = base_port + worker_id
-        self._buffer_size = 12000
+        self.port = base_port 
+        self._buffer_size = 10240
         self._loaded = False
         self._open_socket = False
+        logger.info("unity env try created, socket with port:{}".format(str(self.port)))
 
         try:
             # Establish communication socket
@@ -35,9 +35,9 @@ class UnityEnvironment(object):
         except socket.error:
             self._open_socket = True
             self.close()
-            raise socket.error("Couldn't launch new environment because worker number {} is still in use. "
+            raise socket.error("Couldn't launch new environment "
                                "You may need to manually close a previously opened environment "
-                               "or use a different worker number.".format(str(worker_id)))
+                               "or use a different worker number.")
 
         cwd = os.getcwd()
         file_name = (file_name.strip()
@@ -80,7 +80,7 @@ class UnityEnvironment(object):
             # Launch Unity environment
             proc1 = subprocess.Popen([launch_string,'--port', str(self.port)])
 
-        self._socket.settimeout(120)
+        self._socket.settimeout(60)
         try:
             try:
                 self._socket.listen(1)
@@ -88,6 +88,7 @@ class UnityEnvironment(object):
                 self._conn.settimeout(30)
                 p = self._conn.recv(self._buffer_size).decode('utf-8')
                 p = json.loads(p)
+                # print p
             except socket.timeout as e:
                 raise UnityTimeOutException(
                     "The Unity environment took too long to respond. Make sure {} does not need user interaction to "
@@ -97,14 +98,26 @@ class UnityEnvironment(object):
             self._data = {}
             self._global_done = None
             self._log_path = p["logPath"]
-            self._brains = {}
-            self._brain_names = p["brainNames"]
+            self._alpha = p["alpha"]
+            self._epsilon = p["epsilon"]
+            self._gamma = p["gamma"]
+            self._states = p["states"]
+            # self._num_states = len(self._states)
+            # for i in range(self._num_states):
+            #     print "i:{0}, state:{1}".format(i,self._states[i])
+            self._actions = p["actions"]
+            self._brain = QLearningTable(self._actions,self._states, self._alpha,self._gamma,self._epsilon)
             self._loaded = True
-            logger.info("\n  started successfully!")
-         except UnityEnvironmentException:
+            self._recv_bytes()
+            logger.info("started successfully!")
+        except UnityEnvironmentException:
             proc1.kill()
             self.close()
             raise
+
+
+    def __str__(self):
+        return "unity env args, socket port:{0}, epsilon:{1}, gamma:{2}".format(str(self.port),str(self._log_path),str(self._gamma))
 
     def _recv_bytes(self):
         try:
@@ -113,115 +126,54 @@ class UnityEnvironment(object):
             s = s[4:]
             while len(s) != message_length:
                 s += self._conn.recv(self._buffer_size)
-        except socket.timeout as e:
-            raise UnityTimeOutException("The environment took too long to respond.", self._log_path)
-        return s
-
-    def _get_state_dict(self):
-        state = self._recv_bytes().decode('utf-8')
-        self._conn.send(b"RECEIVED")
-        state_dict = json.loads(state)
-        return state_dict
-
-    def reset(self, train_mode=True, config=None, progress=None):
-        old_lesson = self._curriculum.get_lesson_number()
-        if config is None:
-            config = self._curriculum.get_lesson(progress)
-            if old_lesson != self._curriculum.get_lesson_number():
-                logger.info("\nLesson changed. Now in Lesson {0} : \t{1}"
-                            .format(self._curriculum.get_lesson_number(),
-                                    ', '.join([str(x) + ' -> ' + str(config[x]) for x in config])))
-        elif config != {}:
-            logger.info("\nAcademy Reset with parameters : \t{0}"
-                        .format(', '.join([str(x) + ' -> ' + str(config[x]) for x in config])))
-        for k in config:
-            if (k in self._resetParameters) and (isinstance(config[k], (int, float))):
-                self._resetParameters[k] = config[k]
-            elif not isinstance(config[k], (int, float)):
-                raise UnityEnvironmentException(
-                    "The value for parameter '{0}'' must be an Integer or a Float.".format(k))
+            p = json.loads(s)
+            code = p["Code"]
+            # logging.info("rcv: "+s+" code:"+str(code))
+            if code == "EEXIT":
+                self.close()
+            elif code == "CHOIC":
+                state = p["state"]
+                self._send_choice(state)
+                self._recv_bytes()
+            elif code == "UPDAT":
+                self._to_learn(p)
+                self._recv_bytes()
             else:
-                raise UnityEnvironmentException("The parameter '{0}' is not a valid parameter.".format(k))
+                logging.error("\nunknown code:{0}".format(str(code)))
+                self._recv_bytes()
+        except socket.timeout as e:
+            logger.warning("timeout, will close socket")
+            self.close()
 
-        if self._loaded:
-            self._conn.send(b"RESET")
-            try:
-                self._conn.recv(self._buffer_size)
-            except socket.timeout as e:
-                raise UnityTimeOutException("The environment took too long to respond.", self._log_path)
-            self._conn.send(json.dumps({"train_model": train_mode, "parameters": config}).encode('utf-8'))
-            return self._get_state()
+
+
+    def _send_choice(self, state):
+        try:
+            # logging.info("send action:{}".format(str(state)))
+            action = self._brain.choose_action(state)
+            # logger.info("action is:".format(str(action)))
+            self._conn.send(action)
+        except UnityEnvironmentException:
+            raise 
+
+    def _to_learn(self,j):
+        state_ = j["state_"]
+        state  = j["state"]
+        action = j["action"]
+        rewd = j["rewd"]
+        if action:
+            action ="pad"
         else:
-            raise UnityEnvironmentException("No Unity environment is loaded.")
+            action ="stay"
+        # logger.info("state:{0} action:{1}".format(str(state),str(action)))
+        self._brain.learn(state,action,rewd,state_)
+        
 
-    def _get_state(self):
-        self._data = {}
-        for index in range(self._num_brains):
-            state_dict = self._get_state_dict()
-            b = state_dict["brain_name"]
-            n_agent = len(state_dict["agents"])
-            try:
-                if self._brains[b].state_space_type == "continuous":
-                    states = np.array(state_dict["states"]).reshape((n_agent, self._brains[b].state_space_size))
-                else:
-                    states = np.array(state_dict["states"]).reshape((n_agent, 1))
-            except UnityActionException:
-                raise UnityActionException("Brain {0} has an invalid state. "
-                                           "Expecting {1} {2} state but received {3}."
-                                           .format(b, n_agent if self._brains[b].state_space_type == "discrete"
-                else str(self._brains[b].state_space_size * n_agent),
-                                                   self._brains[b].state_space_type,
-                                                   len(state_dict["states"])))
-            memories = np.array(state_dict["memories"]).reshape((n_agent, self._brains[b].memory_space_size))
-            rewards = state_dict["rewards"]
-            dones = state_dict["dones"]
-            # actions = state_dict["actions"]
-            if n_agent > 0:
-                actions = np.array(state_dict["actions"]).reshape((n_agent, -1))
-            else:
-                actions = np.array([])
-
-            observations = []
-            for o in range(self._brains[b].number_observations):
-                obs_n = []
-                for a in range(n_agent):
-                    obs_n.append(self._get_state_image(self._brains[b].camera_resolutions[o]['blackAndWhite']))
-
-                observations.append(np.array(obs_n))
-
-            self._data[b] = BrainInfo(observations, states, memories, rewards, agents, dones, actions)
-
-        try:
-            self._global_done = self._conn.recv(self._buffer_size).decode('utf-8') == 'True'
-        except socket.timeout as e:
-            raise UnityTimeOutException("The environment took too long to respond.", self._log_path)
-
-        return self._data
-
-    def _send_action(self, action, memory, value):
-        try:
-            self._conn.recv(self._buffer_size)
-        except socket.timeout as e:
-            raise UnityTimeOutException("The environment took too long to respond.", self._log_path)
-        action_message = {"action": action, "memory": memory, "value": value}
-        self._conn.send(json.dumps(action_message).encode('utf-8'))
-
-
-    def step(self, action=None, memory=None, value=None):
-        action = {} if action is None else action
-        value = {} if value is None else value
-        if self._loaded and not self._global_done and self._global_done is not None:
-            pass
-
-        if not self._loaded:
-            raise UnityEnvironmentException("No Unity environment is loaded.")
-        elif self._global_done:
-            raise UnityActionException("The episode is completed. Reset the environment with 'reset()'")
-        elif self.global_done is None:
-            raise UnityActionException(
-                "You cannot conduct step without first calling reset. Reset the environment with 'reset()'")
 
     def close(self):
+        logger.info("env closed")
+        if not self._brain:
+            self._brain.export()
         if self._loaded & self._open_socket:
             self._conn.send(b"EXIT")
             self._conn.close()

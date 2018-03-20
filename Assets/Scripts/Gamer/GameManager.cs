@@ -1,24 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum TrainMode
+{
+    Internal,
+    External,
+}
+
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
     public static GameManager S { get { return instance; } }
 
     private BaseEnv env;
-
-    void Awake()
-    {
-        instance = this;
-
-        env.Init();
-    }
-
-    void Start()
-    {
-        Debug.Log("time:" + Time.fixedDeltaTime + " fps:" + Application.targetFrameRate);
-    }
 
     // 游戏是否开始
     [HideInInspector] public bool isGameStart = false;
@@ -29,14 +23,30 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] public bool isTrainning = true;
 
+    [SerializeField] private TrainMode mode = TrainMode.Internal;
+
+    [HideInInspector] public bool isWaiting = false;
+
+    private float lastSignTime = float.MinValue;
+
+    private static float tickTime;
+
     public bool IsGameOver { get { return isGameOver; } }
 
-    public bool isWaiting = false;
-
-    private float lastSignTime = 0;
-
-    public static float tickTime { get { return Time.deltaTime * 15; } }
-
+    void Awake()
+    {
+        instance = this;
+        if (mode == TrainMode.Internal)
+        {
+            env = new InternalEnv();
+        }
+        else
+        {
+            env = new ExternalEnv();
+        }
+        tickTime = 15 * Time.deltaTime;
+        env.Init();
+    }
 
     void Update()
     {
@@ -56,12 +66,14 @@ public class GameManager : MonoBehaviour
                 mainBird.FlyUp();
             }
         }
-        if (Time.realtimeSinceStartup - lastSignTime > tickTime)
-        {
-            env.OnTick();
-        }
+
         if (GameManager.S.isGameStart)
         {
+            if (Time.time - lastSignTime > tickTime)
+            {
+                env.OnTick();
+                lastSignTime = Time.time;
+            }
             Scorers.S.SetLiveTime(false);
         }
     }
@@ -101,6 +113,10 @@ public class GameManager : MonoBehaviour
     public void OnApplicationQuit()
     {
         env.exportQTable();
+        if (env != null)
+        {
+            env.OnApplicationQuit();
+        }
     }
 
     public void GameOver()
@@ -142,4 +158,5 @@ public class GameManager : MonoBehaviour
         GameManager.S.isGameOver = false;
         Scorers.S.ResetMark();
     }
+
 }

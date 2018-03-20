@@ -8,46 +8,27 @@ using UnityEngine;
 /// </summary>
 public class InternalEnv : BaseEnv
 {
-    int last_r = 0, last_state = 0;
-    bool last_action = false;
 
     Dictionary<int, Row> q_table;
 
-    public class Row
+    class Row
     {
         /// <summary>
         /// 拍翅膀
         /// </summary>
         public float pad;
+
+        /// <summary>
+        /// 滑翔
+        /// </summary>
         public float stay;
     }
 
     public override void Init()
     {
+        base.Init();
         Build_Q_Table();
-        EventHandle.AddCommandHook(COMMAND_TYPE.GAME_START, OnStart);
-        EventHandle.AddCommandHook(COMMAND_TYPE.SCORE, OnScore);
-        EventHandle.AddCommandHook(COMMAND_TYPE.COMMAND_MAX, OnScore);
-        EventHandle.AddCommandHook(COMMAND_TYPE.GAME_OVERD, OnDied);
         loadQTable();
-    }
-
-    void OnStart(object o)
-    {
-        last_r = 1;
-        last_r = 0;
-        last_state = -1;
-    }
-
-    void OnScore(object arg)
-    {
-        Debug.Log("score");
-        last_r = 20;
-    }
-
-    void OnDied(object arg)
-    {
-        last_r = -10;
     }
 
     /*
@@ -69,17 +50,6 @@ public class InternalEnv : BaseEnv
         last_action = action;
     }
 
-    public int GetCurrentState()
-    {
-#if ENABLE_PILLAR
-        int p_st = PillarManager.S.GetPillarMiniState();
-        int b_st = GameManager.S.mainBird.GetState();
-        return p_st + b_st;
-#else
-        return GameManager.S.mainBird.GetState();
-#endif
-    }
-
 
     /// <summary>
     /// Bird [0-9)一共九个状态
@@ -95,7 +65,6 @@ public class InternalEnv : BaseEnv
             for (int j = 0; j < 5; j++)
             {
                 Row row = new Row() { pad = 0f, stay = 0f };
-                // Debug.Log("i:" + i + " j:" + j + " val:" + (i + 10 * j));
                 q_table.Add(i + 10 * j, row);
             }
 #else
@@ -122,7 +91,7 @@ public class InternalEnv : BaseEnv
     /**
         更新 Q_TABLE
      */
-    public void UpdateState(int state, int state_, int rewd, bool action)
+    public override void UpdateState(int state, int state_, int rewd, bool action)
     {
         if (q_table != null)
         {

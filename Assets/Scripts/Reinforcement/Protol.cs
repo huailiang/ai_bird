@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-public class BaseProtol
+public class Protol
 {
     public string Code
     {
@@ -22,13 +22,13 @@ public class Parameters
 };
 
 
-public class ChoiceNode : BaseProtol
+public class ChoiceNode : Protol
 {
     public int state;
 };
 
 
-public class UpdateNode : BaseProtol
+public class UpdateNode : Protol
 {
     public int state_;
 
@@ -39,6 +39,6 @@ public class UpdateNode : BaseProtol
     public bool action;
 };
 
-public class EexitNode : BaseProtol
+public class EexitNode : Protol
 {
 };

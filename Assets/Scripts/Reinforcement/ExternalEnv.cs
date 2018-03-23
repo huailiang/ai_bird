@@ -11,6 +11,7 @@ public class ExternalEnv : BaseEnv
 {
     private bool init = false;
 
+
     Socket sender;
     byte[] messageHolder;
     const int messageLength = 10240;
@@ -78,16 +79,19 @@ public class ExternalEnv : BaseEnv
 
     public override void UpdateState(int state, int state_, int rewd, bool action)
     {
-        UpdateNode node = new UpdateNode();
-        node.state = state;
-        node.state_ = state_;
-        node.rewd = rewd;
-        node.action = action;
-        Send(node);
+        if (init)
+        {
+            UpdateNode node = new UpdateNode();
+            node.state = state;
+            node.state_ = state_;
+            node.rewd = rewd;
+            node.action = action;
+            Send(node);
+        }
     }
 
 
-    private string Send(BaseProtol paramer, bool recv = false)
+    private string Send(Protol paramer, bool recv = false)
     {
         try
         {
@@ -98,7 +102,14 @@ public class ExternalEnv : BaseEnv
             {
                 int location = sender.Receive(messageHolder);
                 Debug.Log("rcv msg: " + paramer.Code);
-                return Encoding.ASCII.GetString(messageHolder, 0, location);
+                string res = Encoding.ASCII.GetString(messageHolder, 0, location); ;
+                if (res == "EXIT")
+                {
+                    init = false;
+                    sender.Close();
+                    Debug.Log("Socket closed");
+                }
+                return res;
             }
             else
             {

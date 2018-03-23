@@ -20,6 +20,7 @@
 *.suo
 *.tmp
 *.user
+*.pyc
 *.csproj
 *.sln
 *.userprefs

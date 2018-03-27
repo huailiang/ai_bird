@@ -1,4 +1,10 @@
-强化学习 游戏AI Trainning的代码工程
+<p align="center">
+    <a href="https://huailiang.github.io/">
+    	<img src="https://huailiang.github.io/img/avatar-Alex.jpg" width="320" height="300">
+    </a>
+</p>
+
+<b>强化学习 游戏AI Trainning的代码工程</b>
 
 
 分为三个过程，对应到项目中都有不同的设置：

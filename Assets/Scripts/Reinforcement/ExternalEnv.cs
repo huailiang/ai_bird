@@ -90,6 +90,15 @@ public class ExternalEnv : BaseEnv
         }
     }
 
+    public override void OnRestart()
+    {
+        if (init)
+        {
+            EpsoleNode node = new EpsoleNode();
+            Send(node);
+        }
+    }
+
 
     private string Send(Protol paramer, bool recv = false)
     {

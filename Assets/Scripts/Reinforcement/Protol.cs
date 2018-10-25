@@ -39,6 +39,11 @@ public class UpdateNode : Protol
     public bool action;
 };
 
+
+public class EpsoleNode : Protol
+{
+}
+
 public class EexitNode : Protol
 {
 };

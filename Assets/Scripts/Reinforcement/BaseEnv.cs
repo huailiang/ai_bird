@@ -75,4 +75,7 @@ public abstract class BaseEnv
 
     public abstract void UpdateState(int state, int state_, int rewd, bool action);
 
+
+    public virtual void OnRestart() { }
+
 }

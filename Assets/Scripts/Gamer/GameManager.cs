@@ -142,6 +142,7 @@ public class GameManager : MonoBehaviour
     //等一段时间再开始 让 reinforcement 把最后一次失败更新到 q_table
     IEnumerator RestartGame()
     {
+        env.OnRestart();
         yield return new WaitForSecondsRealtime(tickTime);
         ResetGame();
         EventHandle.Command(COMMAND_TYPE.GAME_RESET);

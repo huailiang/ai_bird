@@ -15,6 +15,7 @@
 
 3.  <a href="https://huailiang.github.io/2018/03/23/reinforcement3/">使用Deep Q Network 神经经网络训练游戏AI </a>
 
+4.  <a href="https://huailiang.github.io/2018/11/10/ppo//">使用Policy Gradient & PPO神经经网络训练游戏AI </a>
 
 
 欢迎关注作者博客：https://huailiang.github.io

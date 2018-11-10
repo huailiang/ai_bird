@@ -15,6 +15,21 @@
 
 3.  <a href="https://huailiang.github.io/2018/03/23/reinforcement3/">使用Deep Q Network 神经经网络训练游戏AI </a>
 
+4.  <a href="https://huailiang.github.io/2018/11/10/ppo//">使用Policy Gradient & PPO神经经网络训练游戏AI </a>
 
+
+你可以查看此工程可以通过在ternimal输入下面命令：
+
+```shell
+
+git clone https://github.com/huailiang/bird
+
+#切换到PolicyGradient
+git checkout PolicyGradient
+
+#切换到ppo分支
+git checkout ppo
+
+```
 
 欢迎关注作者博客：https://huailiang.github.io

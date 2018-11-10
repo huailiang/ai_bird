@@ -50,7 +50,7 @@ public abstract class BaseEnv
 
     void OnDied(object arg)
     {
-        last_r = -10;
+        last_r = -1000;
     }
 
     public virtual void exportQTable() { }
@@ -76,6 +76,6 @@ public abstract class BaseEnv
     public abstract void UpdateState(int state, int state_, int rewd, bool action);
 
 
-    public virtual void OnRestart() { }
+    public virtual void OnRestart(int state) { }
 
 }

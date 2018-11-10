@@ -42,6 +42,7 @@ public class UpdateNode : Protol
 
 public class EpsoleNode : Protol
 {
+    public int state;
 }
 
 public class EexitNode : Protol

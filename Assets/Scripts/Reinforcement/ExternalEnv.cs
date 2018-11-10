@@ -90,11 +90,12 @@ public class ExternalEnv : BaseEnv
         }
     }
 
-    public override void OnRestart()
+    public override void OnRestart(int state)
     {
         if (init)
         {
             EpsoleNode node = new EpsoleNode();
+            node.state = state;
             Send(node);
         }
     }

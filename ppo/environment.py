@@ -8,11 +8,13 @@ import os
 import socket
 import subprocess
 import struct
+import sys
 
 from brain import PPO
 from exception import UnityEnvironmentException, UnityActionException, UnityTimeOutException
 from sys import platform
 
+sys.setrecursionlimit(1000000)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("unity")
 
@@ -147,7 +149,7 @@ class UnityEnvironment(object):
             self.ppo.update(bs, ba, br)
 
         # self.ppo.update()
-        self.ppo.update(nps, npa, npr)        
+        # self.ppo.update(nps, npa, npr)        
 
     def close(self):
         logger.info("env closed")

@@ -2,7 +2,7 @@
 
 
 """
-运行的是policy gradient 环境
+运行的是ppo 环境
 """
 
 # from environment import UnityEnvironment

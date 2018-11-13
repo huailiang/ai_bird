@@ -23,7 +23,7 @@ logger = logging.getLogger("unity")
 sys.setrecursionlimit(1000000) 
 
 GAMMA = 0.9
-BATCH = 2
+BATCH = 8
 EP_LEN = 200
 all_ep_r = []
 

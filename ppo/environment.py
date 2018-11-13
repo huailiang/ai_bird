@@ -1,3 +1,5 @@
+# coding=utf8
+
 import atexit
 import io
 import glob
@@ -14,9 +16,11 @@ from brain import PPO
 from exception import UnityEnvironmentException, UnityActionException, UnityTimeOutException
 from sys import platform
 
-sys.setrecursionlimit(1000000)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("unity")
+
+# 设置最大递归次数
+sys.setrecursionlimit(1000000) 
 
 GAMMA = 0.9
 BATCH = 2
@@ -148,14 +152,12 @@ class UnityEnvironment(object):
             self.buffer_s, self.buffer_a, self.buffer_r=[],[],[]
             self.ppo.update(bs, ba, br)
 
-        # self.ppo.update()
-        # self.ppo.update(nps, npa, npr)        
-
     def close(self):
         logger.info("env closed")
         if self._loaded & self._open_socket:
             self._conn.send(b"EXIT")
             self._conn.close()
+            self.ppo.exporrt_graph()
         if self._open_socket:
             self._socket.close()
             self._loaded = False

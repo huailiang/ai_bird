@@ -1,6 +1,9 @@
+# coding=utf8
 
+import logging
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.tools import freeze_graph
 
 # reproducible
 np.random.seed(1)
@@ -9,15 +12,20 @@ tf.set_random_seed(1)
 import tensorflow as tf
 import numpy as np
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("unity")
+
 A_LR = 0.0001
 C_LR = 0.0002
 A_UPDATE_STEPS = 10
 C_UPDATE_STEPS = 10
 S_DIM, A_DIM = 1, 2
-EPSILON = 0.2               
+EPSILON = 0.2           
+
 class PPO(object):
 
     def __init__(self):
+        self.model_path = './models/ppo'
         self.sess = tf.Session()
         self.tfs = tf.placeholder(tf.float32, [None, S_DIM], 'state')
 
@@ -80,3 +88,22 @@ class PPO(object):
 
     def get_v(self, s):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
+
+    def process_graph(self):
+        nodes = ["critic/discounted_r", "pi", "oldpi", "loss" ]
+        return nodes
+
+    def exporrt_graph(self):
+        target_nodes = ','.join(self.process_graph())
+        ckpt = tf.train.get_checkpoint_state(self.model_path)
+        freeze_graph.freeze_graph(
+            input_graph = self.model_path + '/raw_graph.pb',
+            input_binary = True,
+            input_checkpoint = ckpt.model_checkpoint_path,
+            output_node_names = target_nodes,
+            output_graph = (self.model_path + '/ppo.bytes'),
+            clear_devices = True, 
+            initializer_nodes = '', 
+            input_saver = '', 
+            restore_op_name = 'save/restore_all', 
+            filename_tensor_name = 'save/Const:0')

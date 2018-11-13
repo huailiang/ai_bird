@@ -11,6 +11,10 @@
 /tools_proj/build/Project.xcodeproj
 /tools_proj/build/CMakeCache.txt
 /tools_proj/build/cmake_install.cmake
+/Assets/Plugins/Android/
+/Assets/Plugins/iOS/
+/Assets/Plugins/Computer/
+/Assets/Plugins/ProtoBuffer/
 **/[Ll]ibrary/
 **/[Tt]emp/
 **/[Oo]bj/

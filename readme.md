@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://huailiang.github.io/">
-    	<img src="https://huailiang.github.io/img/avatar-Alex.jpg" width="320" height="300">
+    	<img src="https://avatars0.githubusercontent.com/u/12636841?s=460&v=4" width="320" height="300">
     </a>
 </p>
 

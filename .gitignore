@@ -31,4 +31,5 @@
 *.DotSettings
 *.apk
 *.DS_Store
+*.pyc
 args.txt

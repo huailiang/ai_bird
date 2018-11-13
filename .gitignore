@@ -30,5 +30,6 @@
 *.booproj
 *.DotSettings
 *.apk
+*.pyc
 *.DS_Store
 args.txt

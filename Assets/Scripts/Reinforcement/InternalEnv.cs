@@ -7,9 +7,6 @@ using UnityEditor;
 using TensorFlow;
 #endif
 
-/// <summary>
-/// 内部实现强化学习
-/// </summary>
 public class InternalEnv : BaseEnv
 {
     private TextAsset graphModel;

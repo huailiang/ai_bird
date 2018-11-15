@@ -5,9 +5,6 @@ using Newtonsoft.Json;
 using System.Text;
 
 
-/// <summary>
-/// 外部实现 Trainning
-/// </summary>
 public class ExternalEnv : BaseEnv
 {
     bool init = false;

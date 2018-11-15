@@ -16,18 +16,17 @@ public class GameManager : MonoBehaviour
 
     private BaseEnv env;
 
-    // 游戏是否开始
-    [HideInInspector] public bool isGameStart = false;
-    // 游戏是否结束
-    [HideInInspector] private bool isGameOver = false;
+    public bool isGameStart = false;
 
-    [SerializeField] public Bird mainBird;
+    private bool isGameOver = false;
+
+    public Bird mainBird;
 
     [SerializeField] public bool isTrainning = true;
 
     [SerializeField] private TrainMode mode = TrainMode.Internal;
 
-    [HideInInspector] public bool isWaiting = false;
+    public bool isWaiting = false;
 
     private float lastSignTime = float.MinValue;
 
@@ -155,7 +154,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //等一段时间再开始 让 reinforcement 把最后一次失败更新到 q_table
     IEnumerator RestartGame()
     {
         yield return new WaitForSecondsRealtime(tickTime);

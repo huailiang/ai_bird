@@ -32,4 +32,11 @@ git checkout ppo
 
 ```
 
+
+## Requirement
+
+- tensorflow==1.12.0
+- matplotlib
+- numpy>=1.11.0
+
 欢迎关注作者博客：https://huailiang.github.io

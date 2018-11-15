@@ -18,4 +18,11 @@
 4.  <a href="https://huailiang.github.io/2018/11/10/ppo//">使用Policy Gradient & PPO神经经网络训练游戏AI </a>
 
 
+## Requirement
+
+- tensorflow==1.12.0
+- matplotlib
+- numpy>=1.11.0
+
+
 欢迎关注作者博客：https://huailiang.github.io

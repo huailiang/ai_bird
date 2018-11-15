@@ -97,12 +97,12 @@ public class ExternalEnv : BaseEnv
         try
         {
             string envMessage = JsonConvert.SerializeObject(paramer, Formatting.Indented);
-            Debug.Log("send: " + paramer.Code + " msg: " + envMessage);
+            // Debug.Log("send: " + paramer.Code + " msg: " + envMessage);
             sender.Send(AppendLength(Encoding.ASCII.GetBytes(envMessage)));
             if (recv)
             {
                 int location = sender.Receive(messageHolder);
-                Debug.Log("rcv msg: " + paramer.Code);
+                // Debug.Log("rcv msg: " + paramer.Code);
                 string res = Encoding.ASCII.GetString(messageHolder, 0, location); ;
                 if (res == "EXIT")
                 {

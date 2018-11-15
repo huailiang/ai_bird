@@ -64,6 +64,9 @@ class UnityEnvironment(object):
                     "launch and that the Academy and the external Brain(s) are attached to objects in the Scene."
                     .format(str(file_name)))
 
+            if not os.path.exists("models"):
+                os.makedirs("models")
+
             self.ppo = PPO()
             self.all_ep_r = []
             self.buffer_s, self.buffer_a, self.buffer_r = [], [], []

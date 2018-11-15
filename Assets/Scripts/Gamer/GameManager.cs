@@ -38,9 +38,10 @@ public class GameManager : MonoBehaviour
 
     public void FillEnv()
     {
-        if (envs == null)
+        if (envs == null || envs.Length == 0)
         {
             int num = System.Enum.GetValues(typeof(TrainMode)).Length;
+
             envs = new ScriptableObject[num];
             foreach (TrainMode mode in System.Enum.GetValues(typeof(TrainMode)))
             {
@@ -53,15 +54,8 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         instance = this;
-        if (mode == TrainMode.Internal)
-        {
-            env = new InternalEnv();
-        }
-        else
-        {
-            env = new ExternalEnv();
-        }
         tickTime = 15 * Time.deltaTime;
+        FillEnv();
         env.Init();
     }
 

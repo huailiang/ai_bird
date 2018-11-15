@@ -1,32 +1,13 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class BaseEnv
+public abstract class BaseEnv : ScriptableObject
 {
-
-    // greedy police
     protected float epsilon = 0.9f;
-
-    // learning rate
     protected float alpha = 0.1f;
-
-    //discount factor
     protected float gamma = 0.9f;
-
     protected int last_r = 1;
     protected int last_state = -1;
-
     protected bool last_action = false;
-
-    protected string save_path
-    {
-        get
-        {
-            string p = Path.GetDirectoryName(Application.dataPath);
-            return Path.Combine(p, "q_tb.csv");
-        }
-    }
 
     public virtual void Init()
     {
@@ -44,17 +25,13 @@ public abstract class BaseEnv
 
     void OnScore(object arg)
     {
-        Debug.Log("score");
         last_r = 20;
     }
 
     void OnDied(object arg)
     {
-        last_r = -1000;
+        last_r = -100;
     }
-
-    public virtual void exportQTable() { }
-
 
     public virtual void OnApplicationQuit() { }
 
@@ -77,5 +54,7 @@ public abstract class BaseEnv
 
 
     public virtual void OnRestart(int state) { }
+
+    public virtual void OnInspector() { }
 
 }

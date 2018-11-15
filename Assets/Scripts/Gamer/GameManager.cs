@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     public static GameManager S { get { return instance; } }
 
+    [SerializeField] ScriptableObject[] envs;
+
     private BaseEnv env;
 
     // 游戏是否开始
@@ -32,6 +34,22 @@ public class GameManager : MonoBehaviour
     private static float tickTime;
 
     public bool IsGameOver { get { return isGameOver; } }
+
+    public BaseEnv Env { get { return env; } }
+
+    public void FillEnv()
+    {
+        if (envs == null)
+        {
+            int num = System.Enum.GetValues(typeof(TrainMode)).Length;
+            envs = new ScriptableObject[num];
+            foreach (TrainMode mode in System.Enum.GetValues(typeof(TrainMode)))
+            {
+                envs[(int)mode] = ScriptableObject.CreateInstance(mode.ToString() + "Env");
+            }
+        }
+        env = (BaseEnv)envs[(int)mode];
+    }
 
     void Awake()
     {
@@ -54,7 +72,6 @@ public class GameManager : MonoBehaviour
         {
             if (isWaiting || (isTrainning && isGameStart))
             {
-                env.exportQTable();
                 return;
             }
             if (!GameManager.S.isGameStart || IsGameOver)
@@ -112,7 +129,6 @@ public class GameManager : MonoBehaviour
 
     public void OnApplicationQuit()
     {
-        env.exportQTable();
         if (env != null)
         {
             env.OnApplicationQuit();

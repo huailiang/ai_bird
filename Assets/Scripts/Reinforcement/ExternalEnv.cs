@@ -4,14 +4,13 @@ using System.Net.Sockets;
 using Newtonsoft.Json;
 using System.Text;
 
+
 /// <summary>
 /// 外部实现 Trainning
 /// </summary>
 public class ExternalEnv : BaseEnv
 {
-    private bool init = false;
-
-
+    bool init = false;
     Socket sender;
     byte[] messageHolder;
     const int messageLength = 10240;
@@ -19,14 +18,11 @@ public class ExternalEnv : BaseEnv
     public override void Init()
     {
         base.Init();
-
         messageHolder = new byte[messageLength];
-
         Parameters paramerters = new Parameters();
         paramerters.epsilon = epsilon;
         paramerters.gamma = gamma;
         paramerters.alpha = alpha;
-        paramerters.logPath = this.save_path;
         paramerters.states = new List<int>();
         for (int i = 0; i < 9; i++)
         {
@@ -76,7 +72,6 @@ public class ExternalEnv : BaseEnv
         return false;
     }
 
-
     public override void UpdateState(int state, int state_, int rewd, bool action)
     {
         if (init)
@@ -99,7 +94,6 @@ public class ExternalEnv : BaseEnv
             Send(node);
         }
     }
-
 
     private string Send(Protol paramer, bool recv = false)
     {

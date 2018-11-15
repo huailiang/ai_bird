@@ -12,7 +12,6 @@ public class Protol
 public class Parameters
 {
     public float alpha;
-    public string logPath;
     public float epsilon;
     public float gamma;
 

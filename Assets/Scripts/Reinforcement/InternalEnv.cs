@@ -1,162 +1,128 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
+#if TensorFlow
+using TensorFlow;
+#endif
 
 /// <summary>
-/// 内部实现强化学习q_learning
+/// 内部实现强化学习
 /// </summary>
 public class InternalEnv : BaseEnv
 {
-
-    Dictionary<int, Row> q_table;
-
-    class Row
-    {
-        /// <summary>
-        /// 拍翅膀
-        /// </summary>
-        public float pad;
-
-        /// <summary>
-        /// 滑翔
-        /// </summary>
-        public float stay;
-    }
-
+    private TextAsset graphModel;
+    private string graphScope;
+    private bool loaded = false;
+#if TensorFlow
+    TFGraph graph;
+    TFSession session;
+#endif
     public override void Init()
     {
         base.Init();
-        Build_Q_Table();
-        loadQTable();
+        if (graphModel == null)
+        {
+            Debug.LogError("not found graph asset!");
+            loaded = false;
+        }
+        else
+        {
+#if TensorFlow
+            graph = new TFGraph();
+            graph.Import(graphModel.bytes);
+            session = new TFSession(graph);
+#endif
+            loaded = true;
+        }
     }
 
-    /*
-    comment: tick time is 15f
-     */
     public override void OnTick()
     {
-        int state = GetCurrentState();
-        if (last_state != -1)
+        if (loaded)
         {
-            UpdateState(last_state, state, last_r, last_action);
-        }
-
-        //do next loop
-        bool action = choose_action(state);
-        GameManager.S.RespondByDecision(action);
-        last_r = 1;
-        last_state = state;
-        last_action = action;
-    }
-
-
-    /// <summary>
-    /// Bird [0-9)一共九个状态
-    /// Pillar [0-5) 一共5个状态 
-    /// 状态统计 9x5=45个状态
-    /// </summary>
-    public void Build_Q_Table()
-    {
-        q_table = new Dictionary<int, Row>();
-        for (int i = 0; i < 9; i++)
-        {
-#if ENABLE_PILLAR
-            for (int j = 0; j < 5; j++)
+            int state = GetCurrentState();
+            if (last_state != -1)
             {
-                Row row = new Row() { pad = 0f, stay = 0f };
-                q_table.Add(i + 10 * j, row);
+                UpdateState(last_state, state, last_r, last_action);
             }
-#else
-            Row row = new Row() { pad = 0f, stay = 0f };
-            q_table.Add(i, row);
-#endif
 
+            //do next loop
+            bool action = choose_action(state);
+            GameManager.S.RespondByDecision(action);
+            last_r = 1;
+            last_state = state;
+            last_action = action;
         }
     }
 
     public override bool choose_action(int state)
     {
-        if (q_table == null || Random.Range(0.0f, 1.0f) > epsilon)
+#if TensorFlow
+        var runner = session.GetRunner();
+        runner.AddInput(graph[""][0], new int[] { state });
+
+        TFTensor[] networkOutput;
+        try
         {
-            return Random.Range(0, 2) > 0;
+            networkOutput = runner.Run();
         }
-        else
+        catch (TFException e)
         {
-            Row row = q_table[state];
-            return row.pad > row.stay;
+            string errorMessage = e.Message;
+            try
+            {
+                errorMessage =
+                    $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
+            }
+            finally
+            {
+                throw new System.Exception(errorMessage);
+            }
         }
+        int[] output = networkOutput[0].GetValue() as int[];
+        int index = 0;
+        int max = output[0];
+        for (int i = 0; i < output.Length; i++)
+        {
+            if (output[i] > max)
+            {
+                max = output[i];
+                index = i;
+            }
+        }
+        return index > 0;
+#else
+        return true;
+#endif
     }
 
-    /**
-        更新 Q_TABLE
-     */
     public override void UpdateState(int state, int state_, int rewd, bool action)
     {
-        if (q_table != null)
-        {
-            Row row = q_table[state_];
-            float max = row.pad > row.stay ? row.pad : row.stay;
-            float q_target = rewd + gamma * max;
-            float q_predict = action ? q_table[state].pad : q_table[state].stay;
-            float add = alpha * (q_target - q_predict);
-
-            if (action)
-            {
-                q_table[state].pad += add;
-            }
-            else
-            {
-                q_table[state].stay += add;
-            }
-            if (rewd != 1) Debug.Log("state:" + state + " rewd:" + rewd + " action:" + action + " add: " + add);
-        }
+        if (rewd != 1) Debug.Log("state:" + state + " rewd:" + rewd + " action:" + action);
     }
 
-    /// <summary>
-    /// 导出q_table
-    /// </summary>
-    public override void exportQTable()
+    public override void OnInspector()
     {
-        Debug.Log(save_path);
-        FileStream fs = new FileStream(save_path, FileMode.OpenOrCreate, FileAccess.Write);
-        StreamWriter sw = new StreamWriter(fs);
-        foreach (var item in q_table)
+        base.OnInspector();
+#if UNITY_EDITOR
+        var serializedBrain = new SerializedObject(this);
+        GUILayout.Label("Edit the Tensorflow graph parameters here");
+        var tfGraphModel = serializedBrain.FindProperty("graphModel");
+        serializedBrain.Update();
+        EditorGUILayout.ObjectField(tfGraphModel);
+        serializedBrain.ApplyModifiedProperties();
+
+        if (graphModel == null)
         {
-            string line = item.Key + "," + item.Value.pad + "," + item.Value.stay;
-            sw.WriteLine(line);
+            EditorGUILayout.HelpBox("Please provide a tensorflow graph as a bytes file.", MessageType.Error);
         }
-        sw.Close();
-        fs.Close();
+        graphScope =
+               EditorGUILayout.TextField(new GUIContent("Graph Scope",
+                   "If you set a scope while training your tensorflow model, " +
+                   "all your placeholder name will have a prefix. You must specify that prefix here."), graphScope);
+#endif
     }
 
-    /// <summary>
-    /// 游戏进入时 加载q_table
-    /// </summary>
-    private void loadQTable()
-    {
-        if (q_table == null) q_table = new Dictionary<int, Row>();
-        if (File.Exists(save_path))
-        {
-            FileStream fs = new FileStream(save_path, FileMode.Open, FileAccess.Read);
-            StreamReader sr = new StreamReader(fs);
-            while (true)
-            {
-                string line = sr.ReadLine();
-                if (string.IsNullOrEmpty(line)) break;
-                string[] ch = line.Split(':');
-                if (ch.Length >= 3)
-                {
-                    int key = int.Parse(ch[0]);
-                    float pad = float.Parse(ch[1]);
-                    float stay = float.Parse(ch[2]);
-                    Row row = new Row() { stay = stay, pad = pad };
-                    if (!q_table.ContainsKey(key)) q_table.Add(key, row);
-                    else q_table[key] = row;
-                }
-            }
-            sr.Dispose();
-            fs.Dispose();
-        }
-    }
 }

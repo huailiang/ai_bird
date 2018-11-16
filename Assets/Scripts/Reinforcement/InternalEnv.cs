@@ -9,7 +9,7 @@ using TensorFlow;
 
 public class InternalEnv : BaseEnv
 {
-    private TextAsset graphModel;
+    public TextAsset graphModel;
     private string graphScope;
     private bool loaded = false;
 #if TensorFlow
@@ -58,7 +58,7 @@ public class InternalEnv : BaseEnv
     {
 #if TensorFlow
         var runner = session.GetRunner();
-        runner.AddInput(graph[""][0], new int[] { state });
+        runner.AddInput(graph["state"][0], new float[] { state }).Fetch(graph["action"][0]); ;
 
         TFTensor[] networkOutput;
         try
@@ -97,7 +97,31 @@ public class InternalEnv : BaseEnv
 
     public override void UpdateState(int state, int state_, int rewd, bool action)
     {
-        if (rewd != 1) Debug.Log("state:" + state + " rewd:" + rewd + " action:" + action);
+#if TensorFlow
+        var runner = session.GetRunner();
+        runner.AddInput(graph["state"][0], new float[] { state });
+        runner.AddInput(graph["state"][0], new int[] { action ? 1 : 0 });
+        runner.AddInput(graph["advantage"][0], new float[] { rewd });
+
+        TFTensor[] networkOutput;
+        try
+        {
+            networkOutput = runner.Run();
+        }
+        catch (TFException e)
+        {
+            string errorMessage = e.Message;
+            try
+            {
+                errorMessage =
+                    $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
+            }
+            finally
+            {
+                throw new System.Exception(errorMessage);
+            }
+        }
+#endif
     }
 
     public override void OnInspector()
@@ -106,6 +130,7 @@ public class InternalEnv : BaseEnv
 #if UNITY_EDITOR
         var serializedBrain = new SerializedObject(this);
         GUILayout.Label("Edit the Tensorflow graph parameters here");
+
         var tfGraphModel = serializedBrain.FindProperty("graphModel");
         serializedBrain.Update();
         EditorGUILayout.ObjectField(tfGraphModel);

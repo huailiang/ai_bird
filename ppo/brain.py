@@ -29,7 +29,7 @@ class PPO(object):
     def __init__(self):
         self.model_path = './models/ppo/'
         self.sess = tf.Session()
-        self.tfs = tf.placeholder(tf.float32, [None, S_DIM], 'state')
+        self.tfs = tf.placeholder(tf.float32, [None, S_DIM], name = 'state')
         self.step = 1
          
 
@@ -102,7 +102,7 @@ class PPO(object):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
 
     def process_graph(self):
-        nodes = ["critic/discounted_r"]
+        nodes = ["state", "action", "advantage",  "critic/discounted_r"]
         return nodes
 
 

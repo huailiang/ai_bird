@@ -113,7 +113,7 @@ class UnityEnvironment(object):
     def _send_choice(self, state):
         try:
             obvs =  np.array([state])
-            logger.info("recv state:{0}".format(str(state)))
+            # logger.info("recv state:{0}".format(str(state)))
             action = self.ppo.choose_action(obvs)
             if action == 1:
                 action="pad"
@@ -121,7 +121,7 @@ class UnityEnvironment(object):
                 action="stay"
             logger.info("send action:{0}",format(str(action)))
             self._conn.send(action)
-            logger.info("send action2:{0}",format(str(action)))
+            # logger.info("send action2:{0}",format(str(action)))
         except UnityEnvironmentException:
             raise 
 
@@ -134,7 +134,7 @@ class UnityEnvironment(object):
             action =1  #"pad"
         else:
             action =0 #"stay"
-        logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
+        # logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
         nps=np.array([state])[np.newaxis, :]
         nps_=np.array([state_])[np.newaxis, :]
         npa=np.array([action])

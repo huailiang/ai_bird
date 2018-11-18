@@ -58,7 +58,8 @@ public class InternalEnv : BaseEnv
     {
 #if TensorFlow
         var runner = session.GetRunner();
-        runner.AddInput(graph["state"][0], new float[] { state }).Fetch(graph["action"][0]); ;
+        runner.AddInput(graph["state"][0], new float[] { state });//
+        runner.Fetch(graph["recurrent_out"][0]);
 
         TFTensor[] networkOutput;
         try
@@ -70,26 +71,16 @@ public class InternalEnv : BaseEnv
             string errorMessage = e.Message;
             try
             {
-                errorMessage =
-                    $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
+                errorMessage = $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
             }
             finally
             {
                 throw new System.Exception(errorMessage);
             }
         }
-        int[] output = networkOutput[0].GetValue() as int[];
-        int index = 0;
-        int max = output[0];
-        for (int i = 0; i < output.Length; i++)
-        {
-            if (output[i] > max)
-            {
-                max = output[i];
-                index = i;
-            }
-        }
-        return index > 0;
+        long output = (long)networkOutput[0].GetValue();
+        Debug.Log("choice action: " + output);
+        return output > 0;
 #else
         return true;
 #endif
@@ -98,29 +89,30 @@ public class InternalEnv : BaseEnv
     public override void UpdateState(int state, int state_, int rewd, bool action)
     {
 #if TensorFlow
-        var runner = session.GetRunner();
-        runner.AddInput(graph["state"][0], new float[] { state });
-        runner.AddInput(graph["state"][0], new int[] { action ? 1 : 0 });
-        runner.AddInput(graph["advantage"][0], new float[] { rewd });
+        // Debug.Log("state" + state + " action: " + action + " rewd: " + rewd);
+        // var runner = session.GetRunner();
+        // runner.AddInput(graph["state"][0], new float[] { state });
+        // runner.AddInput(graph["action"][0], new int[] { action ? 1 : 0 });
+        // runner.AddInput(graph["advantage"][0], new float[] { rewd });
+        // runner.Fetch(graph["recurrent_out"][0]);
 
-        TFTensor[] networkOutput;
-        try
-        {
-            networkOutput = runner.Run();
-        }
-        catch (TFException e)
-        {
-            string errorMessage = e.Message;
-            try
-            {
-                errorMessage =
-                    $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
-            }
-            finally
-            {
-                throw new System.Exception(errorMessage);
-            }
-        }
+        // TFTensor[] networkOutput;
+        // try
+        // {
+        //     networkOutput = runner.Run();
+        // }
+        // catch (TFException e)
+        // {
+        //     string errorMessage = e.Message;
+        //     try
+        //     {
+        //         errorMessage = $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
+        //     }
+        //     finally
+        //     {
+        //         throw new System.Exception(errorMessage);
+        //     }
+        // }
 #endif
     }
 

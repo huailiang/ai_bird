@@ -113,13 +113,15 @@ class UnityEnvironment(object):
     def _send_choice(self, state):
         try:
             obvs =  np.array([state])
+            logger.info("recv state:{0}".format(str(state)))
             action = self.ppo.choose_action(obvs)
-            logger.info("choice action is:{0}".format(str(action)))
             if action == 1:
                 action="pad"
             else:
                 action="stay"
+            logger.info("send action:{0}",format(str(action)))
             self._conn.send(action)
+            logger.info("send action2:{0}",format(str(action)))
         except UnityEnvironmentException:
             raise 
 

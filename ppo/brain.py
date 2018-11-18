@@ -96,13 +96,14 @@ class PPO(object):
         prob_weights = self.sess.run(self.pi, feed_dict={self.tfs: s[None, :]})
         action = np.random.choice(range(prob_weights.shape[1]),
                                       p=prob_weights.ravel())  # select action w.r.t the actions prob
+        self.memory_out = tf.identity(action, name='recurrent_out')
         return action
 
     def get_v(self, s):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
 
     def process_graph(self):
-        nodes = ["state", "action", "advantage",  "critic/discounted_r"]
+        nodes = ["state", "action", "advantage",  "critic/discounted_r","recurrent_out"]
         return nodes
 
 

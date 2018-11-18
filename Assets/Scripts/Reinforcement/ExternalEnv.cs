@@ -62,6 +62,7 @@ public class ExternalEnv : BaseEnv
         {
             ChoiceNode node = new ChoiceNode();
             node.state = state;
+            Debug.Log("send: " + state);
             string res = Send(node, true);
             Debug.Log("res choice:" + res);
             return res.ToLower().Equals("pad");
@@ -77,6 +78,7 @@ public class ExternalEnv : BaseEnv
             node.state = state;
             node.state_ = state_;
             node.rewd = rewd;
+            Debug.Log("send state: " + state);
             node.action = action;
             Send(node);
         }

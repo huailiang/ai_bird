@@ -10868,7 +10868,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400004, guid: 1ab60eb13671ade4d94e3addf5e25f7b, type: 2}
       propertyPath: mode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400004, guid: 1ab60eb13671ade4d94e3addf5e25f7b, type: 2}
       propertyPath: envs.Array.data[0]

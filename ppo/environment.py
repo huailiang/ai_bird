@@ -27,6 +27,7 @@ BATCH = 8
 EP_LEN = 200
 all_ep_r = []
 
+
 class UnityEnvironment(object):
     def __init__(self, file_name, base_port=5006):
         atexit.register(self.close)
@@ -119,7 +120,7 @@ class UnityEnvironment(object):
                 action="pad"
             else:
                 action="stay"
-            logger.info("send action:{0}",format(str(action)))
+            # logger.info("send action:{0}",format(str(action)))
             self._conn.send(action)
             # logger.info("send action2:{0}",format(str(action)))
         except UnityEnvironmentException:

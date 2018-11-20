@@ -30,8 +30,6 @@ class PPO(object):
         self.model_path = './models/ppo/'
         self.sess = tf.Session()
         self.tfs = tf.placeholder(tf.float32, [None, S_DIM], name = 'state')
-        self.step = 1
-         
 
         # critic
         with tf.variable_scope('critic'):
@@ -79,10 +77,10 @@ class PPO(object):
         # update critic
         [self.sess.run(self.ctrain_op, {self.tfs: s, self.tfdc_r: r}) for _ in range(C_UPDATE_STEPS)]
 
-        self.step += 1
-        self.saver.save(self.sess, self.model_path  + 'model.ckpt', global_step=self.step)
-        tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pb',  as_text=False)
-        logger.info('Saved Model')
+        self.saver.save(self.sess, self.model_path  + 'model.ckpt')
+        tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pbtxt',  as_text=True)
+        # tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pb',  as_text=False)
+        logger.info('**** Saved Model ****')
 
 
     def _build_anet(self, name, trainable):
@@ -94,26 +92,26 @@ class PPO(object):
 
     def choose_action(self, s):
         prob_weights = self.sess.run(self.pi, feed_dict={self.tfs: s[None, :]})
-        action = np.random.choice(range(prob_weights.shape[1]),
-                                      p=prob_weights.ravel())  # select action w.r.t the actions prob
-        self.memory_out = tf.identity(action, name='recurrent_out')
+        action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel())  # select action w.r.t the actions prob
+        tf.identity(prob_weights, name='probweights')
+        tf.identity(action, name='recurrent_out')
+        logger.info("prob:{0}  action:{1} ".format(str(prob_weights), str(action)))
         return action
 
     def get_v(self, s):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
 
     def process_graph(self):
-        nodes = ["state", "action", "advantage",  "critic/discounted_r","recurrent_out"]
+        nodes = ["state", "action", "advantage",  "critic/discounted_r","recurrent_out", "probweights"]
         return nodes
 
 
     def exporrt_graph(self):
         target_nodes = ','.join(self.process_graph())
         ckpt = tf.train.get_checkpoint_state(self.model_path)
-        print(ckpt)
         freeze_graph.freeze_graph(
-            input_graph = self.model_path + 'raw_graph.pb',
-            input_binary = True,
+            input_graph = self.model_path + 'raw_graph.pbtxt',
+            input_binary = False,
             input_checkpoint = ckpt.model_checkpoint_path,
             output_node_names = target_nodes,
             output_graph = (self.model_path + 'ppo.bytes'),

@@ -59,8 +59,8 @@ public class InternalEnv : BaseEnv
 #if TensorFlow
         var runner = session.GetRunner();
         runner.AddInput(graph["state"][0], new float[] { state });//
+        runner.Fetch(graph["probweights"][0]);
         runner.Fetch(graph["recurrent_out"][0]);
-
         TFTensor[] networkOutput;
         try
         {
@@ -78,9 +78,10 @@ public class InternalEnv : BaseEnv
                 throw new System.Exception(errorMessage);
             }
         }
-        long output = (long)networkOutput[0].GetValue();
-        Debug.Log("choice action: " + output);
-        return output > 0;
+        // Debug.Log(networkOutput.Length);
+        float[,] output = (float[,])networkOutput[0].GetValue();
+        Debug.Log("choice action: " + output[0, 0] + "  " + output[0, 1]);
+        return output[0, 0] > output[0, 1];
 #else
         return true;
 #endif

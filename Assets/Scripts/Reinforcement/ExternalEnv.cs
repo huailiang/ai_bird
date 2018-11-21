@@ -123,6 +123,7 @@ public class ExternalEnv : BaseEnv
         catch (SocketException e)
         {
             Debug.LogWarning(e.Message);
+            // Application.isPlaying = false;
             return string.Empty;
         }
     }

@@ -28,6 +28,10 @@ public class GameManager : MonoBehaviour
 
     public bool isWaiting = false;
 
+    private float resetTime = 0f;
+
+    private GUIStyle style;
+
     private float lastSignTime = float.MinValue;
 
     private static float tickTime;
@@ -55,8 +59,17 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
         tickTime = 15 * Time.deltaTime;
+        style = new GUIStyle();
+        style.fontSize = 24;
+        style.normal.textColor = Color.red;
         FillEnv();
         env.Init();
+    }
+
+
+    void OnGUI()
+    {
+        GUI.Label(new Rect(20, 20, 100, 30), "TIME: " + (Time.time - resetTime).ToString("f2"), style);
     }
 
     void Update()
@@ -158,6 +171,7 @@ public class GameManager : MonoBehaviour
 
     public void ResetGame()
     {
+        resetTime = Time.time;
         PillarManager.S.ClearPillars();
         mainBird.ResetPos();
         GameManager.S.isGameStart = false;

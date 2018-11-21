@@ -27,7 +27,7 @@ GAMMA = 0.9
 BATCH = 8
 EP_LEN = 200
 all_ep_r = []
-Train = False
+Train = True
 
 
 class UnityEnvironment(object):
@@ -124,8 +124,7 @@ class UnityEnvironment(object):
             else:
                 action = self.model.choose_action(obvs)
                 self._conn.send(str(action).encode())
-
-            logger.info("send action:{0} with state:{1}".format(str(action),str(state)))
+                logger.info("send action:{0} with state:{1}".format(str(action),str(state)))
         except UnityEnvironmentException:
             raise 
 
@@ -146,7 +145,6 @@ class UnityEnvironment(object):
             self.ep_r += rewd
             self.tick += 1
             if self.tick % BATCH == 0 :
-                
                 v_s_ = self.ppo.get_v(nps_)
                 discounted_r = []
                 for r in self.buffer_r[::-1]:

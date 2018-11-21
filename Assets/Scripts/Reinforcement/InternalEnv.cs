@@ -81,11 +81,13 @@ public class InternalEnv : BaseEnv
         // Debug.Log(networkOutput.Length);
         float[,] output = (float[,])networkOutput[0].GetValue();
         Debug.Log("choice action: " + output[0, 0] + "  " + output[0, 1]);
-        return output[0, 0] > output[0, 1] ? BirdAction.PAD : BirdAction.FLY;
+        int rand = Random.Range(0, 100);
+        return rand < (int)(output[0, 0] * 100) ? BirdAction.FLY : BirdAction.PAD;
 #else
         return true;
 #endif
     }
+
 
     public override void UpdateState(int state, int state_, int rewd, BirdAction action)
     {

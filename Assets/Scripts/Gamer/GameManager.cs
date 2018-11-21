@@ -84,7 +84,6 @@ public class GameManager : MonoBehaviour
                 env.OnTick();
                 lastSignTime = Time.time;
             }
-            Scorers.S.SetLiveTime(false);
         }
     }
 
@@ -155,7 +154,6 @@ public class GameManager : MonoBehaviour
         EventHandle.Command(COMMAND_TYPE.GAME_RESET);
         GameManager.S.isGameStart = true;
         EventHandle.Command(COMMAND_TYPE.GAME_START);
-        Scorers.S.SetLiveTime(true);
     }
 
     public void ResetGame()
@@ -164,7 +162,6 @@ public class GameManager : MonoBehaviour
         mainBird.ResetPos();
         GameManager.S.isGameStart = false;
         GameManager.S.isGameOver = false;
-        Scorers.S.ResetMark();
     }
 
 }

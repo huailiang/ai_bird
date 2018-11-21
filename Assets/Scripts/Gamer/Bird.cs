@@ -30,8 +30,6 @@ public class Bird : MonoBehaviour
     {
         if (other.gameObject.tag == "Score")
         {
-            Scorers.S.Plus();
-
             if (GameManager.S.isTrainning)
             {
                 GameManager.S.OnEsplisonEnd();

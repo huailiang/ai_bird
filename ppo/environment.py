@@ -92,7 +92,7 @@ class UnityEnvironment(object):
             s = s[4:]
             while len(s) != message_length:
                 s += self._conn.recv(self._buffer_size)
-            p = json.loads(s)
+            p = json.loads(s.decode("utf-8"))
             code = p["Code"]
             if code == "EEXIT":
                 self.close()
@@ -121,7 +121,7 @@ class UnityEnvironment(object):
             else:
                 action="stay"
             # logger.info("send action:{0}",format(str(action)))
-            self._conn.send(action)
+            self._conn.send(action.encode())
             # logger.info("send action2:{0}",format(str(action)))
         except UnityEnvironmentException:
             raise 

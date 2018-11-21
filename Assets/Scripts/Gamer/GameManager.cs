@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool RespondByDecision(bool action)
+    public bool RespondByDecision(BirdAction action)
     {
         if (!GameManager.S.isGameStart || IsGameOver)
         {
@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (action)
+            if (action == BirdAction.FLY)
             {
                 mainBird.FlyUp();
             }

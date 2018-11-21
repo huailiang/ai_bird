@@ -7,7 +7,7 @@ public abstract class BaseEnv : ScriptableObject
     protected float gamma = 0.9f;
     protected int last_r = 1;
     protected int last_state = -1;
-    protected bool last_action = false;
+    protected BirdAction last_action = BirdAction.PAD;
 
     public virtual void Init()
     {
@@ -48,9 +48,9 @@ public abstract class BaseEnv : ScriptableObject
 
     public abstract void OnTick();
 
-    public abstract bool choose_action(int state);
+    public abstract BirdAction choose_action(int state);
 
-    public abstract void UpdateState(int state, int state_, int rewd, bool action);
+    public abstract void UpdateState(int state, int state_, int rewd, BirdAction action);
 
 
     public virtual void OnRestart(int state) { }

@@ -116,13 +116,8 @@ class UnityEnvironment(object):
             obvs =  np.array([state])
             # logger.info("recv state:{0}".format(str(state)))
             action = self.ppo.choose_action(obvs)
-            if action == 1:
-                action="pad"
-            else:
-                action="stay"
-            # logger.info("send action:{0}",format(str(action)))
-            self._conn.send(action.encode())
-            # logger.info("send action2:{0}",format(str(action)))
+            # logger.info("send action:{0} with type:{1}".format(str(action),type(action)))
+            self._conn.send(str(action).encode())
         except UnityEnvironmentException:
             raise 
 
@@ -131,10 +126,6 @@ class UnityEnvironment(object):
         state  = j["state"]
         action = j["action"]
         rewd = j["rewd"]
-        if action:
-            action =1  #"pad"
-        else:
-            action =0 #"stay"
         # logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
         nps=np.array([state])[np.newaxis, :]
         nps_=np.array([state_])[np.newaxis, :]
@@ -163,7 +154,8 @@ class UnityEnvironment(object):
         if self._loaded & self._open_socket:
             self._conn.send(b"EXIT")
             self._conn.close()
-            self.ppo.exporrt_graph()
+            # self.ppo.exporrt_graph()
+            self.ppo.freeze_graph()
         if self._open_socket:
             self._socket.close()
             self._loaded = False

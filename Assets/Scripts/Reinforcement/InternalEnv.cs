@@ -46,7 +46,7 @@ public class InternalEnv : BaseEnv
             }
 
             //do next loop
-            bool action = choose_action(state);
+            BirdAction action = choose_action(state);
             GameManager.S.RespondByDecision(action);
             last_r = 1;
             last_state = state;
@@ -54,7 +54,7 @@ public class InternalEnv : BaseEnv
         }
     }
 
-    public override bool choose_action(int state)
+    public override BirdAction choose_action(int state)
     {
 #if TensorFlow
         var runner = session.GetRunner();
@@ -81,13 +81,13 @@ public class InternalEnv : BaseEnv
         // Debug.Log(networkOutput.Length);
         float[,] output = (float[,])networkOutput[0].GetValue();
         Debug.Log("choice action: " + output[0, 0] + "  " + output[0, 1]);
-        return output[0, 0] > output[0, 1];
+        return output[0, 0] > output[0, 1] ? BirdAction.PAD : BirdAction.FLY;
 #else
         return true;
 #endif
     }
 
-    public override void UpdateState(int state, int state_, int rewd, bool action)
+    public override void UpdateState(int state, int state_, int rewd, BirdAction action)
     {
 #if TensorFlow
         // Debug.Log("state" + state + " action: " + action + " rewd: " + rewd);

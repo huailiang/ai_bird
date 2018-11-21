@@ -1,5 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+public enum BirdAction
+{
+    FLY,
+    PAD
+}
+
 
 public class Protol
 {
@@ -14,10 +20,8 @@ public class Parameters
     public float alpha;
     public float epsilon;
     public float gamma;
-
     public List<int> states;
-
-    public List<string> actions;
+    public int[] actions = new int[] { (int)BirdAction.FLY, (int)BirdAction.PAD };
 };
 
 
@@ -35,7 +39,7 @@ public class UpdateNode : Protol
 
     public int rewd;
 
-    public bool action;
+    public int action;
 };
 
 

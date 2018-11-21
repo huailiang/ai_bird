@@ -28,18 +28,14 @@ public class ExternalEnv : BaseEnv
                 paramerters.states.Add(i + 10 * j);
             }
         }
-        paramerters.actions = new List<string>();
-        paramerters.actions.Add("pad");
-        paramerters.actions.Add("stay");
         string envMessage = JsonConvert.SerializeObject(paramerters, Formatting.Indented);
-        // Debug.Log(envMessage);
 
         // Create a TCP/IP  socket
         sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         sender.Connect("localhost", 5006);
         sender.Send(Encoding.ASCII.GetBytes(envMessage));
         init = true;
-        Debug.Log("***   socket is init   ***");
+        Debug.Log("****   socket is init   ****");
     }
 
     public override void OnTick()
@@ -49,28 +45,36 @@ public class ExternalEnv : BaseEnv
         {
             UpdateState(last_state, state, last_r, last_action);
         }
-        bool action = choose_action(state);
+        BirdAction action = choose_action(state);
         GameManager.S.RespondByDecision(action);
         last_r = 1;
         last_state = state;
         last_action = action;
     }
 
-    public override bool choose_action(int state)
+    public override BirdAction choose_action(int state)
     {
         if (init)
         {
             ChoiceNode node = new ChoiceNode();
             node.state = state;
-            Debug.Log("send: " + state);
-            string res = Send(node, true);
-            Debug.Log("res choice:" + res);
-            return res.ToLower().Equals("pad");
+            int res = 0;
+            string sr = Send(node, true);
+            if (!int.TryParse(sr, out res))
+            {
+                Debug.LogError("server chose action error " + sr);
+            }
+            else
+            {
+                Debug.Log("send state: " + state + " & rcv action:" + (BirdAction)res);
+            }
+            return (BirdAction)res;
         }
-        return false;
+        Debug.LogError("not initial");
+        return 0;
     }
 
-    public override void UpdateState(int state, int state_, int rewd, bool action)
+    public override void UpdateState(int state, int state_, int rewd, BirdAction action)
     {
         if (init)
         {
@@ -78,8 +82,7 @@ public class ExternalEnv : BaseEnv
             node.state = state;
             node.state_ = state_;
             node.rewd = rewd;
-            Debug.Log("send state: " + state);
-            node.action = action;
+            node.action = (int)action;
             Send(node);
         }
     }
@@ -104,7 +107,6 @@ public class ExternalEnv : BaseEnv
             if (recv)
             {
                 int location = sender.Receive(messageHolder);
-                // Debug.Log("rcv msg: " + paramer.Code);
                 string res = Encoding.ASCII.GetString(messageHolder, 0, location); ;
                 if (res == "EXIT")
                 {

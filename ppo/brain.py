@@ -3,7 +3,7 @@
 import logging
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.tools import freeze_graph
+from tensorflow.python.framework import graph_util
 
 # reproducible
 np.random.seed(1)
@@ -70,17 +70,10 @@ class PPO(object):
     def update(self, s, a, r):
         self.sess.run(self.update_oldpi_op)
         adv = self.sess.run(self.advantage, {self.tfs: s, self.tfdc_r: r})
-
         #update actor
         [self.sess.run(self.atrain_op, {self.tfs: s, self.tfa: a, self.tfadv: adv}) for _ in range(A_UPDATE_STEPS)]
-
         # update critic
         [self.sess.run(self.ctrain_op, {self.tfs: s, self.tfdc_r: r}) for _ in range(C_UPDATE_STEPS)]
-
-        self.saver.save(self.sess, self.model_path  + 'model.ckpt')
-        tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pbtxt',  as_text=True)
-        # tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pb',  as_text=False)
-        logger.info('**** Saved Model ****')
 
 
     def _build_anet(self, name, trainable):
@@ -101,22 +94,31 @@ class PPO(object):
     def get_v(self, s):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
 
-    def process_graph(self):
-        nodes = ["state", "action", "advantage",  "critic/discounted_r","recurrent_out", "probweights"]
-        return nodes
+    def output_nodes(self):
+        return ["state", "action", "advantage",  "critic/discounted_r","recurrent_out", "probweights"]
 
+    def freeze_graph(self):
+        logger.info('**** Saved Model ****')
+        self.saver.save(self.sess, self.model_path  + 'model.ckpt')
+        # tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pbtxt',  as_text=True)
+        tf.train.write_graph(self.sess.graph_def, self.model_path, 'raw_graph.pb',  as_text=False)
 
-    def exporrt_graph(self):
-        target_nodes = ','.join(self.process_graph())
-        ckpt = tf.train.get_checkpoint_state(self.model_path)
-        freeze_graph.freeze_graph(
-            input_graph = self.model_path + 'raw_graph.pbtxt',
-            input_binary = False,
-            input_checkpoint = ckpt.model_checkpoint_path,
-            output_node_names = target_nodes,
-            output_graph = (self.model_path + 'ppo.bytes'),
-            clear_devices = True, 
-            initializer_nodes = '', 
-            input_saver = '', 
-            restore_op_name = 'save/restore_all', 
-            filename_tensor_name = 'save/Const:0')
+        checkpoint = tf.train.get_checkpoint_state(self.model_path)
+        input_checkpoint = checkpoint.model_checkpoint_path
+        output_graph = self.model_path + "ppo.bytes"
+        clear_devices = True
+        saver = tf.train.import_meta_graph(input_checkpoint + '.meta', clear_devices=clear_devices)
+        graph = tf.get_default_graph()
+        input_graph_def = graph.as_graph_def()
+
+        with tf.Session() as sess:
+            saver.restore(sess, input_checkpoint)
+            output_graph_def = graph_util.convert_variables_to_constants(sess, input_graph_def, self.output_nodes()) 
+     
+            # Finally we serialize and dump the output graph to the filesystem
+            with tf.gfile.GFile(output_graph, "wb") as f:
+                f.write(output_graph_def.SerializeToString())
+            logger.info("{0} ops in the final graph.".format(str(len(output_graph_def.node))))
+ 
+ 
+

@@ -13,11 +13,12 @@ import struct
 import sys
 
 from brain import PPO
+from model import Model
 from exception import UnityEnvironmentException, UnityActionException, UnityTimeOutException
 from sys import platform
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("unity")
+logger = logging.getLogger("bird")
 
 # 设置最大递归次数
 sys.setrecursionlimit(1000000) 
@@ -26,6 +27,7 @@ GAMMA = 0.9
 BATCH = 8
 EP_LEN = 200
 all_ep_r = []
+Train = False
 
 
 class UnityEnvironment(object):
@@ -68,6 +70,7 @@ class UnityEnvironment(object):
             if not os.path.exists("models"):
                 os.makedirs("models")
 
+            self.model = Model()
             self.ppo = PPO()
             self.all_ep_r = []
             self.buffer_s, self.buffer_a, self.buffer_r = [], [], []
@@ -115,47 +118,54 @@ class UnityEnvironment(object):
         try:
             obvs =  np.array([state])
             # logger.info("recv state:{0}".format(str(state)))
-            action = self.ppo.choose_action(obvs)
-            # logger.info("send action:{0} with type:{1}".format(str(action),type(action)))
-            self._conn.send(str(action).encode())
+            if Train:
+                action = self.ppo.choose_action(obvs)
+                self._conn.send(str(action).encode())
+            else:
+                action = self.model.choose_action(obvs)
+                self._conn.send(str(action).encode())
+
+            logger.info("send action:{0} with state:{1}".format(str(action),str(state)))
         except UnityEnvironmentException:
             raise 
 
     def _to_learn(self,j):
-        state_ = j["state_"]
-        state  = j["state"]
-        action = j["action"]
-        rewd = j["rewd"]
-        # logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
-        nps=np.array([state])[np.newaxis, :]
-        nps_=np.array([state_])[np.newaxis, :]
-        npa=np.array([action])
-        npr = np.array([rewd])[np.newaxis, :]
-        self.buffer_s.append(state)
-        self.buffer_a.append(action)
-        self.buffer_r.append((rewd+8)/8)
-        self.ep_r += rewd
-        self.tick += 1
-        if self.tick % BATCH == 0 :
-            
-            v_s_ = self.ppo.get_v(nps_)
-            discounted_r = []
-            for r in self.buffer_r[::-1]:
-                v_s_ = r+GAMMA*v_s_
-                discounted_r.append(v_s_)
-            discounted_r.reverse()
+        if Train:
+            state_ = j["state_"]
+            state  = j["state"]
+            action = j["action"]
+            rewd = j["rewd"]
+            # logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
+            nps=np.array([state])[np.newaxis, :]
+            nps_=np.array([state_])[np.newaxis, :]
+            npa=np.array([action])
+            npr = np.array([rewd])[np.newaxis, :]
+            self.buffer_s.append(state)
+            self.buffer_a.append(action)
+            self.buffer_r.append((rewd+8)/8)
+            self.ep_r += rewd
+            self.tick += 1
+            if self.tick % BATCH == 0 :
+                
+                v_s_ = self.ppo.get_v(nps_)
+                discounted_r = []
+                for r in self.buffer_r[::-1]:
+                    v_s_ = r+GAMMA*v_s_
+                    discounted_r.append(v_s_)
+                discounted_r.reverse()
 
-            bs, ba, br= np.vstack(self.buffer_s), self.buffer_a, np.array(discounted_r)[:, np.newaxis]
-            self.buffer_s, self.buffer_a, self.buffer_r=[],[],[]
-            self.ppo.update(bs, ba, br)
+                bs, ba, br= np.vstack(self.buffer_s), self.buffer_a, np.array(discounted_r)[:, np.newaxis]
+                self.buffer_s, self.buffer_a, self.buffer_r=[],[],[]
+                self.ppo.update(bs, ba, br)
 
     def close(self):
         logger.info("env closed")
         if self._loaded & self._open_socket:
             self._conn.send(b"EXIT")
             self._conn.close()
-            # self.ppo.exporrt_graph()
-            self.ppo.freeze_graph()
+            if Train:
+                self.ppo.freeze_graph()
+
         if self._open_socket:
             self._socket.close()
             self._loaded = False

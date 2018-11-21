@@ -9,11 +9,8 @@ from tensorflow.python.framework import graph_util
 np.random.seed(1)
 tf.set_random_seed(1)
 
-import tensorflow as tf
-import numpy as np
-
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("unity")
+logger = logging.getLogger("bird")
 
 A_LR = 0.0001
 C_LR = 0.0002
@@ -118,6 +115,7 @@ class PPO(object):
             # Finally we serialize and dump the output graph to the filesystem
             with tf.gfile.GFile(output_graph, "wb") as f:
                 f.write(output_graph_def.SerializeToString())
+                # print(output_graph_def)
             logger.info("{0} ops in the final graph.".format(str(len(output_graph_def.node))))
  
  

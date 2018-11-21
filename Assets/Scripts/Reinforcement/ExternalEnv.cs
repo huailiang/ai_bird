@@ -70,7 +70,6 @@ public class ExternalEnv : BaseEnv
             }
             return (BirdAction)res;
         }
-        Debug.LogError("not initial");
         return 0;
     }
 

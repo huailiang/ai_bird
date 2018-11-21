@@ -38,5 +38,6 @@ git checkout ppo
 - tensorflow==1.12.0
 - matplotlib
 - numpy>=1.11.0
+- python2.7 | python3.5
 
 欢迎关注作者博客：https://huailiang.github.io

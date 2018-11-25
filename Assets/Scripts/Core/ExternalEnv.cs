@@ -65,9 +65,9 @@ public class ExternalEnv : BaseEnv
             string sr = Send(node, true);
             if (!int.TryParse(sr, out res))
             {
-                Debug.LogError("server chose action error " + sr);
 #if UNITY_EDITOR
                 Debug.Log("Unity Stop Run");
+                Debug.LogError("server chose action error " + sr);
                 EditorApplication.isPlaying = false;
 #endif
             }

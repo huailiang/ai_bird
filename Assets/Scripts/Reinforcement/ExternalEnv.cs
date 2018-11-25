@@ -4,6 +4,9 @@ using System.Net.Sockets;
 using Newtonsoft.Json;
 using System.Text;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class ExternalEnv : BaseEnv
 {
@@ -63,6 +66,10 @@ public class ExternalEnv : BaseEnv
             if (!int.TryParse(sr, out res))
             {
                 Debug.LogError("server chose action error " + sr);
+#if UNITY_EDITOR
+                Debug.Log("Unity Stop Run");
+                EditorApplication.isPlaying = false;
+#endif
             }
             else
             {
@@ -123,7 +130,9 @@ public class ExternalEnv : BaseEnv
         catch (SocketException e)
         {
             Debug.LogWarning(e.Message);
-            // Application.isPlaying = false;
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#endif
             return string.Empty;
         }
     }

@@ -46,6 +46,8 @@ public abstract class BaseEnv : ScriptableObject
 #endif
     }
 
+    public virtual void OnUpdate(float delta) { }
+
     public abstract void OnTick();
 
     public abstract BirdAction choose_action(int state);

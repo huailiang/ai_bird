@@ -97,6 +97,7 @@ public class GameManager : MonoBehaviour
                 env.OnTick();
                 lastSignTime = Time.time;
             }
+            env.OnUpdate(Time.deltaTime);
         }
     }
 
@@ -105,13 +106,13 @@ public class GameManager : MonoBehaviour
         if (GameManager.S.isGameOver)
         {
             ResetGame();
-            Debug.Log("游戏重置");
+            Debug.Log("Game Reset");
             EventHandle.Command(COMMAND_TYPE.GAME_RESET);
         }
         else if (!GameManager.S.isGameStart)
         {
             GameManager.S.isGameStart = true;
-            Debug.Log("游戏开始");
+            Debug.Log("Game Start");
             EventHandle.Command(COMMAND_TYPE.GAME_START);
         }
     }

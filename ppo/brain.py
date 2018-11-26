@@ -85,7 +85,7 @@ class PPO(object):
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel())  # select action w.r.t the actions prob
         tf.identity(prob_weights, name='probweights')
         tf.identity(action, name='recurrent_out')
-        logger.info("prob:{0}  action:{1} ".format(str(prob_weights), str(action)))
+        logger.info("prob:{0}    action:{1} ".format(str(prob_weights), str(action)))
         return action
 
     def get_v(self, s):

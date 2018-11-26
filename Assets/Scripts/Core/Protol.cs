@@ -3,7 +3,8 @@
 public enum BirdAction
 {
     FLY,
-    PAD
+    PAD,
+    NONE
 }
 
 

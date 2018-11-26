@@ -1,24 +1,19 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Net.Sockets;
 using Newtonsoft.Json;
 using System.Text;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using System.Threading;
 
 public class ExternalEnv : BaseEnv
 {
-    bool init = false;
-    Socket sender;
-    byte[] messageHolder;
-    const int messageLength = 10240;
+    Communicator communicator;
+
+    Queue<BirdAction> m_oDataQueue = new Queue<BirdAction>();
 
     public override void Init()
     {
         base.Init();
-        messageHolder = new byte[messageLength];
+        communicator = new Communicator();
         Parameters paramerters = new Parameters();
         paramerters.epsilon = epsilon;
         paramerters.gamma = gamma;
@@ -32,13 +27,20 @@ public class ExternalEnv : BaseEnv
             }
         }
         string envMessage = JsonConvert.SerializeObject(paramerters, Formatting.Indented);
-
-        // Create a TCP/IP  socket
-        sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        sender.Connect("localhost", 5006);
-        sender.Send(Encoding.ASCII.GetBytes(envMessage));
-        init = true;
+        communicator.Connect(envMessage, OnRecv);
         Debug.Log("****   socket is init   ****");
+    }
+
+    public override void OnUpdate(float delta)
+    {
+        Monitor.Enter(m_oDataQueue);
+        if (m_oDataQueue.Count > 0)
+        {
+            BirdAction action = m_oDataQueue.Dequeue();
+            GameManager.S.RespondByDecision(action);
+            last_action = action;
+        }
+        Monitor.Exit(m_oDataQueue);
     }
 
     public override void OnTick()
@@ -48,117 +50,81 @@ public class ExternalEnv : BaseEnv
         {
             UpdateState(last_state, state, last_r, last_action);
         }
-        BirdAction action = choose_action(state);
-        GameManager.S.RespondByDecision(action);
+        choose_action(state);
+
         last_r = 1;
         last_state = state;
-        last_action = action;
+    }
+
+    public void OnRecv(string recv, int length)
+    {
+        int res = 0;
+        if (!int.TryParse(recv, out res))
+        {
+            Debug.LogError("server chose action error " + recv);
+        }
+        else
+        {
+            BirdAction action = (BirdAction)res;
+            Monitor.Enter(m_oDataQueue);
+            m_oDataQueue.Enqueue(action);
+            Debug.Log("rcv action:" + action);
+            Monitor.Exit(m_oDataQueue);
+        }
     }
 
     public override BirdAction choose_action(int state)
     {
-        if (init)
-        {
-            ChoiceNode node = new ChoiceNode();
-            node.state = state;
-            int res = 0;
-            string sr = Send(node, true);
-            if (!int.TryParse(sr, out res))
-            {
-#if UNITY_EDITOR
-                Debug.Log("Unity Stop Run");
-                Debug.LogError("server chose action error " + sr);
-                EditorApplication.isPlaying = false;
-#endif
-            }
-            else
-            {
-                Debug.Log("send state: " + state + " & rcv action:" + (BirdAction)res);
-            }
-            return (BirdAction)res;
-        }
-        return 0;
+        ChoiceNode node = new ChoiceNode();
+        node.state = state;
+        Send(node, true);
+        return BirdAction.NONE;
     }
 
     public override void UpdateState(int state, int state_, int rewd, BirdAction action)
     {
-        if (init)
-        {
-            UpdateNode node = new UpdateNode();
-            node.state = state;
-            node.state_ = state_;
-            node.rewd = rewd;
-            node.action = (int)action;
-            Send(node);
-        }
+        UpdateNode node = new UpdateNode();
+        node.state = state;
+        node.state_ = state_;
+        node.rewd = rewd;
+        node.action = (int)action;
+        Send(node);
     }
 
     public override void OnRestart(int state)
     {
-        if (init)
-        {
-            EpsoleNode node = new EpsoleNode();
-            node.state = state;
-            Send(node);
-        }
+        EpsoleNode node = new EpsoleNode();
+        node.state = state;
+        Send(node);
     }
 
-    private string Send(Protol paramer, bool recv = false)
+    private void Send(Protol paramer, bool recv = false)
     {
-        try
+        string envMessage = JsonConvert.SerializeObject(paramer, Formatting.Indented);
+        communicator.Send(envMessage);
+        if (recv)
         {
-            string envMessage = JsonConvert.SerializeObject(paramer, Formatting.Indented);
-            // Debug.Log("send: " + paramer.Code + " msg: " + envMessage);
-            sender.Send(AppendLength(Encoding.ASCII.GetBytes(envMessage)));
-            if (recv)
-            {
-                int location = sender.Receive(messageHolder);
-                string res = Encoding.ASCII.GetString(messageHolder, 0, location); ;
-                if (res == "EXIT")
-                {
-                    init = false;
-                    sender.Close();
-                    Debug.Log("Socket closed");
-                }
-                return res;
-            }
-            else
-            {
-                return string.Empty;
-            }
+            communicator.Recive();
         }
-        catch (SocketException e)
-        {
-            Debug.LogWarning(e.Message);
-#if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-#endif
-            return string.Empty;
-        }
-    }
-
-    private byte[] AppendLength(byte[] input)
-    {
-        byte[] newArray = new byte[input.Length + 4];
-        input.CopyTo(newArray, 4);
-        System.BitConverter.GetBytes(input.Length).CopyTo(newArray, 0);
-        return newArray;
     }
 
     public override void OnApplicationQuit()
     {
-        if (init && sender != null)
+        if (communicator != null)
         {
             try
             {
                 EexitNode node = new EexitNode();
-                Send(node);
-                sender.Close();
-                Debug.Log("Socket closed");
+                string envMessage = JsonConvert.SerializeObject(node, Formatting.Indented);
+                communicator.SendImm(envMessage);
             }
-            catch (SocketException e)
+            catch (System.Exception e)
             {
-                Debug.LogError("socket close err:" + e.Message);
+                Debug.LogError(e.Message);
+            }
+            finally
+            {
+                communicator.Close();
             }
         }
     }

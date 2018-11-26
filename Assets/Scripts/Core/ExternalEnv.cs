@@ -77,7 +77,7 @@ public class ExternalEnv : BaseEnv
     {
         ChoiceNode node = new ChoiceNode();
         node.state = state;
-        Send(node, true);
+        Send(node);
         return BirdAction.NONE;
     }
 
@@ -97,12 +97,24 @@ public class ExternalEnv : BaseEnv
         node.state = state;
         Send(node);
     }
+    private void Send(Protol paramer)
+    {
+        Send(paramer, true);
+    }
 
-    private void Send(Protol paramer, bool recv = false)
+    private void Send(Protol paramer, bool async)
     {
         string envMessage = JsonConvert.SerializeObject(paramer, Formatting.Indented);
-        communicator.Send(envMessage);
-        if (recv)
+        if (async)
+        {
+            communicator.Send(envMessage);
+        }
+        else
+        {
+            communicator.SendImm(envMessage);
+        }
+        Debug.Log("recv: " + paramer.recv);
+        if (paramer.recv)
         {
             communicator.Recive();
         }
@@ -115,8 +127,7 @@ public class ExternalEnv : BaseEnv
             try
             {
                 EexitNode node = new EexitNode();
-                string envMessage = JsonConvert.SerializeObject(node, Formatting.Indented);
-                communicator.SendImm(envMessage);
+                Send(node, false);
             }
             catch (System.Exception e)
             {

@@ -14,6 +14,8 @@ public class Protol
     {
         get { return GetType().Name.Substring(0, 5).ToUpper(); }
     }
+
+    public virtual bool recv { get { return false; } }
 };
 
 public class Parameters
@@ -29,6 +31,8 @@ public class Parameters
 public class ChoiceNode : Protol
 {
     public int state;
+
+    public override bool recv { get { return true; } }
 };
 
 

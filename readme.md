@@ -35,8 +35,14 @@ git checkout ppo
 
 ## Requirement
 
+server:
 - tensorflow==1.12.0
 - matplotlib
 - numpy>=1.11.0
 
+client:
+- unity >=2018.2.7
+- [TFSharpPlugin][i1]
+
 欢迎关注作者博客：https://huailiang.github.io
+[i1]:https://s3.amazonaws.com/unity-agents/TFSharpPlugin.unitypackage

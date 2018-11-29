@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using Newtonsoft.Json;
-using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
+using UnityEngine;
 
 public class ExternalEnv : BaseEnv
 {

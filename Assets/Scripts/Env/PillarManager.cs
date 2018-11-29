@@ -11,8 +11,7 @@ public class PillarManager : MonoBehaviour
     private float oldTime = 0;
 
     void Awake() { instance = this; }
-
-    // Update is called once per frame
+    
     void Update()
     {
         if (GameManager.S.IsGameOver)

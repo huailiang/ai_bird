@@ -1,10 +1,7 @@
 ﻿using System.Net.Sockets;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using System;
-using System.Threading;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -60,7 +57,7 @@ public class Communicator
             sender.BeginSend(data, 0, data.Length, SocketFlags.None, asyncResult =>
             {
                 int length = sender.EndSend(asyncResult);
-                // Debug.Log(string.Format("客户端发送消息:{0}", msg));
+                // Debug.Log(string.Format("client send:{0}", msg));
             }, null);
         }
         catch (Exception e)
@@ -82,7 +79,7 @@ public class Communicator
 
                     int length = sender.EndReceive(asyncResult);
                     string recv = Encoding.ASCII.GetString(data);
-                    // Debug.Log(string.Format("收到服务器消息:长度：{1},{0}", recv, length));
+                    // Debug.Log(string.Format("recv server message：{0}  len:({1})", recv, length));
                     if (recv == "EXIT")
                     {
                         Close();

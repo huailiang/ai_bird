@@ -12,7 +12,6 @@ public abstract class BaseEnv : ScriptableObject
     public virtual void Init()
     {
         EventHandle.AddCommandHook(COMMAND_TYPE.GAME_START, OnStart);
-        EventHandle.AddCommandHook(COMMAND_TYPE.SCORE, OnScore);
         EventHandle.AddCommandHook(COMMAND_TYPE.COMMAND_MAX, OnScore);
         EventHandle.AddCommandHook(COMMAND_TYPE.GAME_OVERD, OnDied);
     }

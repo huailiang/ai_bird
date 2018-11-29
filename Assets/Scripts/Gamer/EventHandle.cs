@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 public enum COMMAND_TYPE
 {
@@ -23,13 +21,7 @@ public enum COMMAND_TYPE
     /// 加分
     /// </summary>
     SCORE,
-
-    /// <summary>
-    /// 打破记录
-    /// </summary>
-    BREAKING_RECORDS,
-
-
+    
     COMMAND_MAX,
 }
 

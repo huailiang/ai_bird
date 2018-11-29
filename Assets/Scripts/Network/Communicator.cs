@@ -56,7 +56,7 @@ public class Communicator
         {
             sender.BeginSend(data, 0, data.Length, SocketFlags.None, asyncResult =>
             {
-                int length = sender.EndSend(asyncResult);
+                sender.EndSend(asyncResult);
                 // Debug.Log(string.Format("client send:{0}", msg));
             }, null);
         }

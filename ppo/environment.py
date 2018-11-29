@@ -44,6 +44,7 @@ class UnityEnvironment(object):
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._socket.bind(("localhost", self.port))
+            self._socket.setblocking(False)
             self._open_socket = True
         except socket.error:
             self._open_socket = True
@@ -52,12 +53,14 @@ class UnityEnvironment(object):
                                "You may need to manually close a previously opened environment "
                                "or use a different worker number.")
 
-        self._socket.settimeout(60)
+        self._socket.settimeout(30)
         try:
             try:
                 self._socket.listen(1)
                 self._conn, _ = self._socket.accept()
                 self._conn.settimeout(30)
+                # self._conn.setblocking(0)
+
                 p = self._conn.recv(self._buffer_size).decode('utf-8')
                 p = json.loads(p)
                 # print p
@@ -93,26 +96,35 @@ class UnityEnvironment(object):
             s = self._conn.recv(self._buffer_size)
             message_length = struct.unpack("I", bytearray(s[:4]))[0]
             s = s[4:]
-            while len(s) != message_length:
+            while len(s) > message_length:
+                s1 = s[0:message_length]
+                self._recv_str(s1)
+                s = s[message_length:]
+            while len(s) < message_length:
                 s += self._conn.recv(self._buffer_size)
-            p = json.loads(s.decode("utf-8"))
-            code = p["Code"]
-            if code == "EEXIT":
-                self.close()
-            elif code == "CHOIC":
-                state = p["state"]
-                self._send_choice(state)
-                self._recv_bytes()
-            elif code == "UPDAT":
-                self._to_learn(p)
-                self._recv_bytes()
-            else:
-                logging.error("\nunknown code:{0}".format(str(code)))
-                self._recv_bytes()
+
+            self._recv_str(s)
         except socket.timeout as e:
             logger.warning("timeout, will close socket")
             self.close()
 
+            
+    def _recv_str(self,s):
+        p = json.loads(s.decode("utf-8"))
+        code = p["Code"]
+        if code == "EEXIT":
+            self.close()
+        elif code == "CHOIC":
+            state = p["state"]
+            self._send_choice(state)
+            self._recv_bytes()
+        elif code == "UPDAT":
+            self._to_learn(p)
+            self._recv_bytes()
+        else:
+            logging.error("\nunknown code:{0}".format(str(code)))
+            self._recv_bytes()
+    
 
     def _send_choice(self, state):
         try:

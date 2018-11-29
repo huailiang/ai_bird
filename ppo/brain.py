@@ -75,8 +75,9 @@ class PPO(object):
 
     def _build_anet(self, name, trainable):
         with tf.variable_scope(name):
-            l_a = tf.layers.dense(self.tfs, 200, tf.nn.relu, trainable=trainable)
-            a_prob = tf.layers.dense(l_a, A_DIM, tf.nn.softmax, trainable=trainable)
+            l_a = tf.layers.dense(self.tfs, 16, tf.nn.relu, trainable=trainable)
+            l_b = tf.layers.dense(l_a, 128, tf.nn.relu, trainable=trainable)
+            a_prob = tf.layers.dense(l_b, A_DIM, tf.nn.softmax, trainable=trainable)
         params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=name)
         return a_prob, params
 
@@ -85,7 +86,7 @@ class PPO(object):
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel())  # select action w.r.t the actions prob
         tf.identity(prob_weights, name='probweights')
         tf.identity(action, name='recurrent_out')
-        logger.info("prob:{0}    action:{1} ".format(str(prob_weights), str(action)))
+        logger.info("loss:{2} prob:{0}    action:{1}".format(str(prob_weights), str(action), str(self.aloss)))
         return action
 
     def get_v(self, s):

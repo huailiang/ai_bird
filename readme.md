@@ -42,7 +42,6 @@ server:
 
 client:
 - unity >=2018.2.7
-- [TFSharpPlugin][i1]
+- <a href="https://s3.amazonaws.com/unity-agents/TFSharpPlugin.unitypackage">TFSharpPlugin</a>
 
 欢迎关注作者博客：https://huailiang.github.io
-[i1]:https://s3.amazonaws.com/unity-agents/TFSharpPlugin.unitypackage

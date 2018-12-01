@@ -12,14 +12,12 @@ tf.set_random_seed(1)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bird")
 
-A_LR = 0.0001
-C_LR = 0.0002
+A_LR = 0.001
+C_LR = 0.001
 A_UPDATE_STEPS = 10
 C_UPDATE_STEPS = 10
 S_DIM, A_DIM = 1, 2
 EPSILON = 0.2           
-
-
 
 class PPO(object):
 
@@ -30,12 +28,13 @@ class PPO(object):
 
         # critic
         with tf.variable_scope('critic'):
-            l1 = tf.layers.dense(self.tfs, 100, tf.nn.relu)
-            self.v = tf.layers.dense(l1, 1)
+            w_init = tf.random_normal_initializer(0., .1)
+            lc = tf.layers.dense(self.tfs, 200, tf.nn.relu, kernel_initializer=w_init, name='lc')
+            self.v = tf.layers.dense(lc, 1)
             self.tfdc_r = tf.placeholder(tf.float32, [None, 1], 'discounted_r')
             self.advantage = self.tfdc_r - self.v
-            self.closs = tf.reduce_mean(tf.square(self.advantage))
-            self.ctrain_op = tf.train.AdamOptimizer(C_LR).minimize(self.closs)
+            self.c_loss = tf.reduce_mean(tf.square(self.advantage))
+            self.ctrain_op = tf.train.AdamOptimizer(C_LR).minimize(self.c_loss)
 
         # actor
         self.pi, pi_params = self._build_anet('pi', trainable=True)
@@ -46,6 +45,7 @@ class PPO(object):
         self.tfa = tf.placeholder(tf.int32, [None, ], 'action')
         self.tfadv = tf.placeholder(tf.float32, [None, 1], 'advantage')
         self.saver = tf.train.Saver() 
+
         a_indices = tf.stack([tf.range(tf.shape(self.tfa)[0], dtype=tf.int32), self.tfa], axis=1)
         pi_prob = tf.gather_nd(params=self.pi, indices=a_indices)   # shape=(None, )
         oldpi_prob = tf.gather_nd(params=oldpi, indices=a_indices)  # shape=(None, )
@@ -66,8 +66,9 @@ class PPO(object):
 
     def update(self, s, a, r):
         self.sess.run(self.update_oldpi_op)
+        # update advantage
         adv = self.sess.run(self.advantage, {self.tfs: s, self.tfdc_r: r})
-        #update actor
+        # update actor
         [self.sess.run(self.atrain_op, {self.tfs: s, self.tfa: a, self.tfadv: adv}) for _ in range(A_UPDATE_STEPS)]
         # update critic
         [self.sess.run(self.ctrain_op, {self.tfs: s, self.tfdc_r: r}) for _ in range(C_UPDATE_STEPS)]
@@ -75,25 +76,23 @@ class PPO(object):
 
     def _build_anet(self, name, trainable):
         with tf.variable_scope(name):
-            l_a = tf.layers.dense(self.tfs, 16, tf.nn.relu, trainable=trainable)
-            l_b = tf.layers.dense(l_a, 128, tf.nn.relu, trainable=trainable)
-            a_prob = tf.layers.dense(l_b, A_DIM, tf.nn.softmax, trainable=trainable)
+            l_1 = tf.layers.dense(self.tfs, 256, tf.nn.relu, trainable=trainable)
+            a_prob = tf.layers.dense(l_1, A_DIM, tf.nn.softmax, trainable=trainable)
         params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=name)
         return a_prob, params
 
     def choose_action(self, s):
         prob_weights = self.sess.run(self.pi, feed_dict={self.tfs: s[None, :]})
-        action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel())  # select action w.r.t the actions prob
+        action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel()) 
         tf.identity(prob_weights, name='probweights')
-        tf.identity(action, name='recurrent_out')
-        logger.info("loss:{2} prob:{0}    action:{1}".format(str(prob_weights), str(action), str(self.aloss)))
+        logger.info("action:{1} prob:{0}".format(str(action), str(self.aloss)))
         return action
 
     def get_v(self, s):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
 
     def output_nodes(self):
-        return ["state", "action", "advantage",  "critic/discounted_r","recurrent_out", "probweights"]
+        return ["state", "action", "advantage",  "critic/discounted_r", "probweights"]
 
     def freeze_graph(self):
         logger.info('**** Saved Model ****')

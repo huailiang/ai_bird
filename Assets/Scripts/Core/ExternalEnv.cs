@@ -112,7 +112,7 @@ public class ExternalEnv : BaseEnv
         {
             communicator.SendImm(envMessage);
         }
-        Debug.Log("recv: " + paramer.recv);
+        // Debug.Log("recv: " + paramer.recv);
         if (paramer.recv)
         {
             communicator.Recive();

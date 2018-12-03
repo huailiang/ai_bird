@@ -30,7 +30,7 @@ public class Parameters
 
 public class ChoiceNode : Protol
 {
-    public int state;
+    public int[] state;
 
     public override bool recv { get { return true; } }
 };
@@ -38,9 +38,9 @@ public class ChoiceNode : Protol
 
 public class UpdateNode : Protol
 {
-    public int state_;
+    public int[] state_;
 
-    public int state;
+    public int[] state;
 
     public int rewd;
 
@@ -50,7 +50,7 @@ public class UpdateNode : Protol
 
 public class EpsoleNode : Protol
 {
-    public int state;
+    public int[] state;
 }
 
 public class EexitNode : Protol

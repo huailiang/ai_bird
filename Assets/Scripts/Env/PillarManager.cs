@@ -11,7 +11,7 @@ public class PillarManager : MonoBehaviour
     private float oldTime = 0;
 
     void Awake() { instance = this; }
-    
+
     void Update()
     {
         if (GameManager.S.IsGameOver)
@@ -24,7 +24,7 @@ public class PillarManager : MonoBehaviour
         {
 #if ENABLE_PILLAR
             this.CreatePillar();
-            oldTime = 10000;//Time.time;
+            oldTime = Time.time;
 #endif
         }
     }
@@ -59,26 +59,11 @@ public class PillarManager : MonoBehaviour
     }
 
 
-    public int GetPillarMiniState()
-    {
-        int ret = 0;
-        if (pillars.Count > 0)
-        {
-            float _dis = pillars[0].transform.position.x;
-            if (_dis < 0) ret = 0;
-            else if (_dis <= 2) ret = 1;
-            else if (_dis <= 4) ret = 2;
-            else if (_dis <= 6) ret = 3;
-            else ret = 4;
-        }
-        return ret * 10;
-    }
-
     //优化 只计算离自己最近的柱子的状态
     // 这样做 柱子最多有9个状态 
-    public int GetPillarState()
+    public int[] GetPillarState()
     {
-        int ret = 0;
+        int[] ret = new int[2];
         float _dis = 1000;
         Pillar pillar = null;
         if (pillars.Count > 0)
@@ -95,11 +80,9 @@ public class PillarManager : MonoBehaviour
         }
         if (pillar != null)
         {
-            // Debug.Log(pillar.transform.position.x);
-            if (_dis < 2) ret = 10 * (pillar.height + 1);
-            else if (_dis < 4) ret = 100 * (pillar.height + 1);
-            else if (_dis < 6) ret = 1000 * (pillar.height + 1);
+            ret[0] = pillar.height;
         }
+        ret[1] = Mathf.FloorToInt(_dis / 2f);
         return ret;
     }
 

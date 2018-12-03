@@ -5,6 +5,7 @@ public enum TrainMode
 {
     Internal,
     External,
+    Player,
 }
 
 public class GameManager : MonoBehaviour
@@ -21,8 +22,6 @@ public class GameManager : MonoBehaviour
     private bool isGameOver = false;
 
     public Bird mainBird;
-
-    [SerializeField] public bool isTrainning = true;
 
     [SerializeField] private TrainMode mode = TrainMode.Internal;
 
@@ -49,11 +48,13 @@ public class GameManager : MonoBehaviour
             envs = new ScriptableObject[num];
             foreach (TrainMode mode in System.Enum.GetValues(typeof(TrainMode)))
             {
+
                 envs[(int)mode] = ScriptableObject.CreateInstance(mode.ToString() + "Env");
             }
         }
         env = (BaseEnv)envs[(int)mode];
     }
+
 
     void Awake()
     {
@@ -76,7 +77,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
         {
-            if (isWaiting || (isTrainning && isGameStart))
+            if (isWaiting || ((mode == TrainMode.Internal || mode == TrainMode.External) && isGameStart))
             {
                 return;
             }
@@ -146,19 +147,15 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         EventHandle.Command(COMMAND_TYPE.GAME_OVERD);
 
-        if (isTrainning)
+        if (mode == TrainMode.External || mode == TrainMode.Internal)
         {
             StartCoroutine(RestartGame());
         }
     }
 
-    public void OnEsplisonEnd()
+    public void OnScore()
     {
-        if (isTrainning)
-        {
-            isGameOver = true;
-            StartCoroutine(RestartGame());
-        }
+        EventHandle.Command(COMMAND_TYPE.SCORE);
     }
 
     IEnumerator RestartGame()

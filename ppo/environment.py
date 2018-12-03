@@ -72,9 +72,11 @@ class UnityEnvironment(object):
 
             if not os.path.exists("models"):
                 os.makedirs("models")
-
-            self.model = Model()
-            self.ppo = PPO()
+            if not Train:
+                self.model = Model()
+            else:
+                self.ppo = PPO()
+            self.isBreak = False
             self.all_ep_r = []
             self.buffer_s, self.buffer_a, self.buffer_r = [], [], []
             self.ep_r = 0
@@ -93,17 +95,18 @@ class UnityEnvironment(object):
 
     def _recv_bytes(self):
         try:
-            s = self._conn.recv(self._buffer_size)
-            message_length = struct.unpack("I", bytearray(s[:4]))[0]
-            s = s[4:]
-            while len(s) > message_length:
-                s1 = s[0:message_length]
-                self._recv_str(s1)
-                s = s[message_length:]
-            while len(s) < message_length:
-                s += self._conn.recv(self._buffer_size)
+            if not self.isBreak:
+                s = self._conn.recv(self._buffer_size)
+                message_length = struct.unpack("I", bytearray(s[:4]))[0]
+                s = s[4:]
+                while len(s) > message_length:
+                    s1 = s[0:message_length]
+                    self._recv_str(s1)
+                    s = s[message_length:]
+                while len(s) < message_length:
+                    s += self._conn.recv(self._buffer_size)
 
-            self._recv_str(s)
+                self._recv_str(s)
         except socket.timeout as e:
             logger.warning("timeout, will close socket")
             self.close()
@@ -128,7 +131,7 @@ class UnityEnvironment(object):
 
     def _send_choice(self, state):
         try:
-            obvs =  np.array([state])
+            obvs =  np.array(state)
             # logger.info("recv state:{0}".format(str(state)))
             if Train:
                 action = self.ppo.choose_action(obvs)
@@ -147,8 +150,8 @@ class UnityEnvironment(object):
             action = j["action"]
             rewd = j["rewd"]
             # logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
-            nps=np.array([state])[np.newaxis, :]
-            nps_=np.array([state_])[np.newaxis, :]
+            nps=np.array(state)[np.newaxis, :]
+            nps_=np.array(state_)[np.newaxis, :]
             npa=np.array([action])
             npr = np.array([rewd])[np.newaxis, :]
             self.buffer_s.append(state)
@@ -170,6 +173,7 @@ class UnityEnvironment(object):
 
     def close(self):
         logger.info("env closed")
+        self.isBreak =  True
         if self._loaded & self._open_socket:
             self._conn.send(b"EXIT")
             self._conn.close()

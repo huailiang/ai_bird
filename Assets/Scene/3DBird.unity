@@ -11794,8 +11794,7 @@ MonoBehaviour:
   - {fileID: 693646827}
   isGameStart: 0
   mainBird: {fileID: 402347494}
-  isTrainning: 1
-  mode: 0
+  mode: 2
   isWaiting: 0
 --- !u!1 &2083200957
 GameObject:

@@ -39,8 +39,8 @@ public class InternalEnv : BaseEnv
     {
         if (loaded)
         {
-            int state = GetCurrentState();
-            if (last_state != -1)
+            int[] state = GetCurrentState();
+            if (last_state != null)
             {
                 UpdateState(last_state, state, last_r, last_action);
             }
@@ -54,12 +54,12 @@ public class InternalEnv : BaseEnv
         }
     }
 
-    public override BirdAction choose_action(int state)
+    public override BirdAction choose_action(int[] state)
     {
 #if TensorFlow
         var runner = session.GetRunner();
         float[,] sample = new float[1, 1];
-        sample[0, 0] = state;
+        // sample[0, 0] = state;
         TFTensor t = new TFTensor(sample);
         runner.AddInput(graph["state"][0], t);
         runner.Fetch(graph["pi/probweights"][0]);
@@ -91,7 +91,7 @@ public class InternalEnv : BaseEnv
     }
 
 
-    public override void UpdateState(int state, int state_, int rewd, BirdAction action)
+    public override void UpdateState(int[] state, int[] state_, int rewd, BirdAction action)
     {
 #if TensorFlow
         // Debug.Log("state" + state + " action: " + action + " rewd: " + rewd);

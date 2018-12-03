@@ -28,12 +28,10 @@ public class Bird : MonoBehaviour
     // 碰撞
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log("triger: " + other.gameObject.tag);
         if (other.gameObject.tag == "Score")
         {
-            if (GameManager.S.isTrainning)
-            {
-                GameManager.S.OnEsplisonEnd();
-            }
+            GameManager.S.OnScore();
         }
         else
         {
@@ -85,33 +83,8 @@ public class Bird : MonoBehaviour
     {
         anim.Stop();
         GetComponent<Collider>().enabled = false;
-        StopCoroutine(Decline());
-        StartCoroutine(Decline());
     }
 
-    IEnumerator Decline()
-    {
-        Vector3 startPos = transform.localPosition;
-        startPos.z = -3;
-        Vector3 endPos = startPos;
-        endPos.y = -3.5f;
-        if (!GameManager.S.isTrainning)
-        {
-            GameManager.S.isWaiting = true;
-            yield return new WaitForSeconds(1f);
-
-            float tempTime = 0f;
-            while (tempTime < 0.5f)
-            {
-                tempTime += Time.deltaTime;
-                transform.localPosition = Vector3.Lerp(startPos, endPos, tempTime / 0.5f);
-                yield return 0;
-            }
-
-            yield return new WaitForSeconds(0.2f);
-        }
-        GameManager.S.isWaiting = false;
-    }
 
     public int GetState()
     {

@@ -16,7 +16,7 @@ A_LR = 0.001
 C_LR = 0.001
 A_UPDATE_STEPS = 10
 C_UPDATE_STEPS = 10
-S_DIM, A_DIM = 1, 2
+S_DIM, A_DIM = 3, 2
 EPSILON = 0.2           
 
 class PPO(object):
@@ -85,7 +85,7 @@ class PPO(object):
         prob_weights = self.sess.run(self.pi, feed_dict={self.tfs: s[None, :]})
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel()) 
         tf.identity(prob_weights, name='probweights')
-        logger.info("action:{1} prob:{0}".format(str(action), str(self.aloss)))
+        logger.info("action:{0} prob:{1}".format(str(action), str(prob_weights)))
         return action
 
     def get_v(self, s):

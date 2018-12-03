@@ -44,8 +44,8 @@ public class ExternalEnv : BaseEnv
 
     public override void OnTick()
     {
-        int state = GetCurrentState();
-        if (last_state != -1)
+        int[] state = GetCurrentState();
+        if (last_state != null)
         {
             UpdateState(last_state, state, last_r, last_action);
         }
@@ -72,7 +72,7 @@ public class ExternalEnv : BaseEnv
         }
     }
 
-    public override BirdAction choose_action(int state)
+    public override BirdAction choose_action(int[] state)
     {
         ChoiceNode node = new ChoiceNode();
         node.state = state;
@@ -80,7 +80,7 @@ public class ExternalEnv : BaseEnv
         return BirdAction.NONE;
     }
 
-    public override void UpdateState(int state, int state_, int rewd, BirdAction action)
+    public override void UpdateState(int[] state, int[] state_, int rewd, BirdAction action)
     {
         UpdateNode node = new UpdateNode();
         node.state = state;
@@ -90,7 +90,7 @@ public class ExternalEnv : BaseEnv
         Send(node);
     }
 
-    public override void OnRestart(int state)
+    public override void OnRestart(int[] state)
     {
         EpsoleNode node = new EpsoleNode();
         node.state = state;

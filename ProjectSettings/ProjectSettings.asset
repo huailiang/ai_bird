@@ -537,7 +537,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 1
   scriptingDefineSymbols:
-    1: TensorFlow
+    1: TensorFlow;ENABLE_PILLAR
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}

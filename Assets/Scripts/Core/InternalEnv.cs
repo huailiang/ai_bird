@@ -58,9 +58,11 @@ public class InternalEnv : BaseEnv
     {
 #if TensorFlow
         var runner = session.GetRunner();
-        runner.AddInput(graph["state"][0], new float[] { state });//
-        runner.Fetch(graph["probweights"][0]);
-        runner.Fetch(graph["recurrent_out"][0]);
+        float[,] sample = new float[1, 1];
+        sample[0, 0] = state;
+        TFTensor t = new TFTensor(sample);
+        runner.AddInput(graph["state"][0], t);
+        runner.Fetch(graph["pi/probweights"][0]);
         TFTensor[] networkOutput;
         try
         {

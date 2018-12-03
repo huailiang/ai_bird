@@ -15,6 +15,7 @@
 Assets/Plugins/iOS*
 Assets/Plugins/Computer*
 Assets/Plugins/ProtoBuffer*
+Assets/ML-Agent*
 **/[Ll]ibrary/
 **/[Tt]emp/
 **/[Oo]bj/

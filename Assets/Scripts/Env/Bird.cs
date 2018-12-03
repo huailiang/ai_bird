@@ -28,7 +28,6 @@ public class Bird : MonoBehaviour
     // 碰撞
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("triger: " + other.gameObject.tag);
         if (other.gameObject.tag == "Score")
         {
             GameManager.S.OnScore();

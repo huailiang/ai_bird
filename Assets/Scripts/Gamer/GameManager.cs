@@ -41,10 +41,9 @@ public class GameManager : MonoBehaviour
 
     public void FillEnv()
     {
-        if (envs == null || envs.Length == 0)
+        int num = System.Enum.GetValues(typeof(TrainMode)).Length;
+        if (envs == null || envs.Length != num)
         {
-            int num = System.Enum.GetValues(typeof(TrainMode)).Length;
-
             envs = new ScriptableObject[num];
             foreach (TrainMode mode in System.Enum.GetValues(typeof(TrainMode)))
             {

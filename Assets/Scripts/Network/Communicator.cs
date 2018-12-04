@@ -63,6 +63,9 @@ public class Communicator
         catch (Exception e)
         {
             Debug.LogError(e.Message);
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#endif
         }
     }
 
@@ -95,6 +98,9 @@ public class Communicator
                     {
                         Close();
                         Debug.Log("server has closed!");
+#if UNITY_EDITOR
+                        EditorApplication.isPlaying = false;
+#endif
                     }
                     else
                     {

@@ -27,7 +27,7 @@ GAMMA = 0.9
 BATCH = 8
 EP_LEN = 200
 all_ep_r = []
-Train = False
+Train = True
 
 
 class UnityEnvironment(object):
@@ -103,7 +103,7 @@ class UnityEnvironment(object):
                     s1 = s[0:message_length]
                     self._recv_str(s1)
                     s = s[message_length:]
-                while len(s) < message_length:
+                while len(s) < message_length and not self.isBreak:
                     s += self._conn.recv(self._buffer_size)
 
                 self._recv_str(s)
@@ -113,26 +113,27 @@ class UnityEnvironment(object):
 
             
     def _recv_str(self,s):
-        p = json.loads(s.decode("utf-8"))
-        code = p["Code"]
-        if code == "EEXIT":
-            self.close()
-        elif code == "CHOIC":
-            state = p["state"]
-            self._send_choice(state)
-            self._recv_bytes()
-        elif code == "UPDAT":
-            self._to_learn(p)
-            self._recv_bytes()
-        else:
-            logging.error("\nunknown code:{0}".format(str(code)))
-            self._recv_bytes()
+        if not self.isBreak:
+            p = json.loads(s.decode("utf-8"))
+            code = p["Code"]
+            if code == "EEXIT":
+                self.close()
+            elif code == "CHOIC":
+                state = p["state"]
+                self._send_choice(state)
+                self._recv_bytes()
+            elif code == "UPDAT":
+                self._to_learn(p)
+                self._recv_bytes()
+            else:
+                logging.error("\nunknown code:{0}".format(str(code)))
+                self._recv_bytes()
     
 
     def _send_choice(self, state):
         try:
-            obvs =  np.array(state)
-            # logger.info("recv state:{0}".format(str(state)))
+            obvs = np.array(state)
+            logger.info("recv state:{0}".format(str(state)))
             if Train:
                 action = self.ppo.choose_action(obvs)
                 self._conn.send(str(action).encode())

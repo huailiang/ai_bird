@@ -35,8 +35,8 @@ public class PillarManager : MonoBehaviour
 
         pillar.transform.position = new Vector3(12, 0, 0);
         pillar.transform.localScale = Vector3.one;
-        // int height = Random.Range(0, 3);
-        pillar.SetHeight(1);//height);
+        int height = Random.Range(0, 3);
+        pillar.SetHeight(height);
         pillars.Add(pillar);
     }
 
@@ -45,8 +45,7 @@ public class PillarManager : MonoBehaviour
         pillars.Remove(_pillar);
         Object.Destroy(_pillar.gameObject);
     }
-
-    // 清除所有柱子
+    
     public void ClearPillars()
     {
         foreach (var pillar in pillars)
@@ -58,9 +57,7 @@ public class PillarManager : MonoBehaviour
         pillars.Clear();
     }
 
-
-    //优化 只计算离自己最近的柱子的状态
-    // 这样做 柱子最多有9个状态 
+    
     public int[] GetPillarState()
     {
         int[] ret = new int[2];

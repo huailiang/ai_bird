@@ -76,6 +76,7 @@ public class ExternalEnv : BaseEnv
     {
         ChoiceNode node = new ChoiceNode();
         node.state = state;
+        //Debug.Log("state: " + state);
         Send(node);
         return BirdAction.NONE;
     }

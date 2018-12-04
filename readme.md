@@ -49,7 +49,17 @@ client:
 
 ## Mode
 
-- train in python 
+### play game by operation
+
+![](/image/3.jpg)
+
+每点击一次屏幕，小鸟就上飞一次，通过所有关卡
+
+Unity Player Setting Symbols set as:
+
+![](/image/6.jpg)
+
+### train in python 
 
 GameManager(c#) set External 
 
@@ -59,13 +69,17 @@ environment(python) set Train = True
 
 ![](/image/3.jpg)
 
-- test in python
+### test in python
 
 as opration like train in python and set Train = False
 
+### test in unity
 
-- test in unity
+download TFSharpPlugin and import TFSharpPlugin to unity at first
 
+Unity Player Setting Symbols set as:
+
+![](/image/4.jpg)
 
 GameManager(c#) set Internal and drag tensorflow output to Graph model
 

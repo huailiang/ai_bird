@@ -38,7 +38,7 @@ public abstract class BaseEnv : ScriptableObject
     {
 #if ENABLE_PILLAR
         int[] p_st = PillarManager.S.GetPillarState();
-        int b_st = GameManager.S.mainBird.GetState();
+        int b_st = GameMgr.S.mainBird.GetState();
         int[] rst = new int[3];
         rst[0] = p_st[0];
         rst[1] = p_st[1];
@@ -56,8 +56,7 @@ public abstract class BaseEnv : ScriptableObject
     public abstract BirdAction choose_action(int[] state);
 
     public abstract void UpdateState(int[] state, int[] state_, int rewd, BirdAction action);
-
-
+    
     public virtual void OnRestart(int[] state) { }
 
     public virtual void OnInspector() { }

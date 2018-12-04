@@ -2,12 +2,12 @@
 using UnityEditor;
 
 
-[CustomEditor(typeof(GameManager))]
+[CustomEditor(typeof(GameMgr))]
 public class GameManagerEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        GameManager mgr = (GameManager)target;
+        GameMgr mgr = (GameMgr)target;
 
         SerializedObject serializedBrain = serializedObject;
 

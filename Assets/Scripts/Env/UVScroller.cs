@@ -26,7 +26,6 @@ public class UVScroller : MonoBehaviour {
 		
 		offsetX = offsetX + Time.deltaTime*scrollSpeedX;
 		if (offsetX>1) offsetX = offsetX - 1;
-
         mat.mainTextureOffset = new Vector2(offsetX, 0);
 	}
 

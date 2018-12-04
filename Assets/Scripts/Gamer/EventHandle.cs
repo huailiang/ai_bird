@@ -27,9 +27,7 @@ public enum COMMAND_TYPE
 
 // 主要逻辑模块
 public class EventHandle
-
 {
-
     public delegate void CommandCallBack(params object[] args);
     static Dictionary<COMMAND_TYPE, List<CommandCallBack>> allCB = new Dictionary<COMMAND_TYPE, List<CommandCallBack>>();
 
@@ -76,12 +74,10 @@ public class EventHandle
     // 监听就否存在
     public static bool FindCommandHook(COMMAND_TYPE command)
     {
-
         if (command <= 0 || command >= COMMAND_TYPE.COMMAND_MAX)
         {
             return false;
         }
-
         return allCB.ContainsKey(command);
     }
 

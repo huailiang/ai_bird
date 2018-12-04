@@ -12,10 +12,12 @@ public class InternalEnv : BaseEnv
     public TextAsset graphModel;
     private string graphScope;
     private bool loaded = false;
+
 #if TensorFlow
     TFGraph graph;
     TFSession session;
 #endif
+
     public override void Init()
     {
         base.Init();
@@ -47,7 +49,7 @@ public class InternalEnv : BaseEnv
 
             //do next loop
             BirdAction action = choose_action(state);
-            GameManager.S.RespondByDecision(action);
+            GameMgr.S.RespondByDecision(action);
             last_r = 1;
             last_state = state;
             last_action = action;
@@ -86,39 +88,14 @@ public class InternalEnv : BaseEnv
         int rand = Random.Range(0, 100);
         return rand < (int)(output[0, 0] * 100) ? BirdAction.FLY : BirdAction.PAD;
 #else
-        return true;
+        throw new System.Exception("you should enable TensorFlow in playersettings symbols");
 #endif
     }
 
 
     public override void UpdateState(int[] state, int[] state_, int rewd, BirdAction action)
     {
-#if TensorFlow
-        // Debug.Log("state" + state + " action: " + action + " rewd: " + rewd);
-        // var runner = session.GetRunner();
-        // runner.AddInput(graph["state"][0], new float[] { state });
-        // runner.AddInput(graph["action"][0], new int[] { action ? 1 : 0 });
-        // runner.AddInput(graph["advantage"][0], new float[] { rewd });
-        // runner.Fetch(graph["recurrent_out"][0]);
-
-        // TFTensor[] networkOutput;
-        // try
-        // {
-        //     networkOutput = runner.Run();
-        // }
-        // catch (TFException e)
-        // {
-        //     string errorMessage = e.Message;
-        //     try
-        //     {
-        //         errorMessage = $@"The tensorflow graph needs an input for {e.Message.Split(new string[] { "Node: " }, 0)[1].Split('=')[0]} of type {e.Message.Split(new string[] { "dtype=" }, 0)[1].Split(',')[0]}";
-        //     }
-        //     finally
-        //     {
-        //         throw new System.Exception(errorMessage);
-        //     }
-        // }
-#endif
+        //internal don't need to update env
     }
 
     public override void OnInspector()

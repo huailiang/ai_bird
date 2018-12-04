@@ -1,47 +1,39 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class Bird : MonoBehaviour
 {
-
-    private float time = 0;
     [SerializeField] private GameObject mesh;
     [SerializeField] private Animation anim;
-
+    private float time = 0;
     private float bounds = 4.1f;
-
     private Vector3 flySpeed = Vector3.zero;
 
     void Update()
     {
-        if (!GameManager.S.isGameStart || GameManager.S.IsGameOver) return;
+        if (!GameMgr.S.isGameStart || GameMgr.S.IsGameOver) return;
         if (time > 0) FlyUpUpdate();
-        else VolplaneUpdate();
+        else PadUpdate();
 
         if (transform.position.y < -bounds || transform.position.y > bounds)
         {
-            GameManager.S.GameOver();
+            GameMgr.S.GameOver();
             Death();
         }
     }
-
-    // 碰撞
+    
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Score")
         {
-            GameManager.S.OnScore();
+            GameMgr.S.OnScore();
         }
         else
         {
-            GameManager.S.GameOver();
+            GameMgr.S.GameOver();
             Death();
         }
     }
 
-    /// <summary>
-    /// 设置小鸟初始位置
-    /// </summary>
     public void ResetPos()
     {
         StopCoroutine("Decline");
@@ -51,30 +43,25 @@ public class Bird : MonoBehaviour
         anim.CrossFade("Idle", 0, PlayMode.StopAll);
     }
 
-    /// <summary>
-    /// 向上飞
-    /// </summary>
     public void FlyUp()
     {
         anim.CrossFade("Run", 0f, PlayMode.StopAll);
-        time = GlobalValue.FlyUpTime;
+        time = EnvGlobalValue.FlyUpTime;
     }
-
-    // 向上飞
+    
     void FlyUpUpdate()
     {
         anim["Run"].speed = 1;
         time -= Time.deltaTime;
-        flySpeed.y = GlobalValue.FlyUpSpeed * Time.deltaTime;
+        flySpeed.y = EnvGlobalValue.FlyUpSpeed * Time.deltaTime;
         transform.Translate(flySpeed);
     }
-
-    // 滑翔
-    void VolplaneUpdate()
+    
+    void PadUpdate()
     {
         anim["Run"].speed = 0;
         anim["Run"].normalizedTime = 0.1f;
-        flySpeed.y = -GlobalValue.FlyDownSpeed * Time.deltaTime;
+        flySpeed.y = -EnvGlobalValue.FlyDownSpeed * Time.deltaTime;
         this.transform.Translate(flySpeed);
     }
 
@@ -83,8 +70,7 @@ public class Bird : MonoBehaviour
         anim.Stop();
         GetComponent<Collider>().enabled = false;
     }
-
-
+    
     public int GetState()
     {
         int v = (int)transform.position.y + 4;

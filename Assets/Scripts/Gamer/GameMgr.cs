@@ -8,10 +8,10 @@ public enum TrainMode
     Player,
 }
 
-public class GameManager : MonoBehaviour
+public class GameMgr : MonoBehaviour
 {
-    private static GameManager instance;
-    public static GameManager S { get { return instance; } }
+    private static GameMgr instance;
+    public static GameMgr S { get { return instance; } }
 
     [SerializeField] ScriptableObject[] envs;
 
@@ -24,8 +24,6 @@ public class GameManager : MonoBehaviour
     public Bird mainBird;
 
     [SerializeField] private TrainMode mode = TrainMode.Internal;
-
-    public bool isWaiting = false;
 
     private float resetTime = 0f;
 
@@ -74,52 +72,41 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
-        {
-            if (isWaiting || ((mode == TrainMode.Internal || mode == TrainMode.External) && isGameStart))
-            {
-                return;
-            }
-            if (!GameManager.S.isGameStart || IsGameOver)
-            {
-                GameControl();
-            }
-            else
-            {
-                mainBird.FlyUp();
-            }
-        }
-
-        if (GameManager.S.isGameStart)
+        if (isGameStart)
         {
             if (Time.time - lastSignTime > tickTime)
             {
                 env.OnTick();
                 lastSignTime = Time.time;
             }
-            env.OnUpdate(Time.deltaTime);
         }
+        env.OnUpdate(Time.deltaTime);
     }
 
-    void GameControl()
+    public void ManuControl()
     {
-        if (GameManager.S.isGameOver)
+        if (IsGameOver)
         {
             ResetGame();
             Debug.Log("Game Reset");
             EventHandle.Command(COMMAND_TYPE.GAME_RESET);
         }
-        else if (!GameManager.S.isGameStart)
+        else if (!isGameStart)
         {
-            GameManager.S.isGameStart = true;
+            GameMgr.S.isGameStart = true;
             Debug.Log("Game Start");
             EventHandle.Command(COMMAND_TYPE.GAME_START);
         }
+        else
+        {
+            mainBird.FlyUp();
+        }
     }
+
 
     public bool RespondByDecision(BirdAction action)
     {
-        if (!GameManager.S.isGameStart || IsGameOver)
+        if (!GameMgr.S.isGameStart || IsGameOver)
         {
             return false;
         }
@@ -162,7 +149,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(tickTime);
         ResetGame();
         EventHandle.Command(COMMAND_TYPE.GAME_RESET);
-        GameManager.S.isGameStart = true;
+        isGameStart = true;
         EventHandle.Command(COMMAND_TYPE.GAME_START);
     }
 
@@ -171,8 +158,8 @@ public class GameManager : MonoBehaviour
         resetTime = Time.time;
         PillarManager.S.ClearPillars();
         mainBird.ResetPos();
-        GameManager.S.isGameStart = false;
-        GameManager.S.isGameOver = false;
+        isGameStart = false;
+        isGameOver = false;
     }
 
 }

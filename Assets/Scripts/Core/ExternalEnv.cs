@@ -36,7 +36,7 @@ public class ExternalEnv : BaseEnv
         if (m_oDataQueue.Count > 0)
         {
             BirdAction action = m_oDataQueue.Dequeue();
-            GameManager.S.RespondByDecision(action);
+            GameMgr.S.RespondByDecision(action);
             last_action = action;
         }
         Monitor.Exit(m_oDataQueue);

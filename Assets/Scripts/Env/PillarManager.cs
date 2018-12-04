@@ -14,13 +14,13 @@ public class PillarManager : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.S.IsGameOver)
+        if (GameMgr.S.IsGameOver)
         {
             oldTime = 0;
             return;
         }
 
-        if (GameManager.S.isGameStart && Time.time - oldTime > 1.5f)
+        if (GameMgr.S.isGameStart && Time.time - oldTime > 1.5f)
         {
 #if ENABLE_PILLAR
             this.CreatePillar();
@@ -53,7 +53,6 @@ public class PillarManager : MonoBehaviour
             if (pillar.gameObject != null)
                 Object.Destroy(pillar.gameObject);
         }
-
         pillars.Clear();
     }
 

@@ -9,8 +9,8 @@ public class Pillar : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.S.IsGameOver) return;
-        mTransform.Translate(new Vector3(-GlobalValue.MoveSpeed * Time.deltaTime, 0, 0));
+        if (GameMgr.S.IsGameOver) return;
+        mTransform.Translate(new Vector3(-EnvGlobalValue.MoveSpeed * Time.deltaTime, 0, 0));
         if (mTransform.position.x < -11)
         {
             PillarManager.S.DeletePillar(this);

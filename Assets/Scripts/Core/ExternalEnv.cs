@@ -47,13 +47,13 @@ public class ExternalEnv : BaseEnv
 
     public override void OnTick()
     {
+        base.OnTick();
         int[] state = GetCurrentState();
         if (last_state != null)
         {
             UpdateState(last_state, state, last_r, last_action);
         }
         choose_action(state);
-
         last_r = 1;
         last_state = state;
     }

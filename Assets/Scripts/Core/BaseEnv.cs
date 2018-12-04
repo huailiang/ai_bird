@@ -7,7 +7,11 @@ public abstract class BaseEnv : ScriptableObject
     protected float gamma = 0.9f;
     protected int last_r = 1;
     protected int[] last_state;
+    protected int total_r = 0;
     protected BirdAction last_action = BirdAction.PAD;
+    
+    public int Score { get { return total_r; } }
+
     protected abstract bool birdFly { get; }
 
     public virtual void Init()
@@ -20,6 +24,7 @@ public abstract class BaseEnv : ScriptableObject
     void OnStart(object o)
     {
         last_r = 0;
+        total_r = 0;
         last_state = null;
     }
 
@@ -58,7 +63,10 @@ public abstract class BaseEnv : ScriptableObject
         }
     }
 
-    public abstract void OnTick();
+    public virtual void OnTick()
+    {
+        total_r += last_r;
+    }
 
     public abstract BirdAction choose_action(int[] state);
 

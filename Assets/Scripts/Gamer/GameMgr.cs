@@ -73,8 +73,14 @@ public class GameMgr : MonoBehaviour
 
     void OnGUI()
     {
-        string str = string.Format("fps:{0} epsilon:{2} run:{1}", m_CurrentFps.ToString("f2"), (Time.time - resetTime).ToString("f2"), epsilon);
+        string str = string.Format("frame:{0} ", m_CurrentFps.ToString("f2"));
         GUI.Label(new Rect(20, 20, 100, 30), str, style);
+        str = string.Format("runer:{0}", (Time.time - resetTime).ToString("f2"));
+        GUI.Label(new Rect(20, 50, 100, 30), str, style);
+        str = string.Format("epsln:{0}", epsilon);
+        GUI.Label(new Rect(20, 80, 100, 30), str, style);
+        str = string.Format("score:{0}", env.Score);
+        GUI.Label(new Rect(20, 110, 100, 30), str, style);
     }
 
     void Update()

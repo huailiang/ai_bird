@@ -41,6 +41,7 @@ public class InternalEnv : BaseEnv
 
     public override void OnTick()
     {
+        base.OnTick();
         if (loaded)
         {
             int[] state = GetCurrentState();

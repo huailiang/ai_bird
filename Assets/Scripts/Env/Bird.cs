@@ -5,7 +5,6 @@ public class Bird : MonoBehaviour
     [SerializeField] private GameObject mesh;
     [SerializeField] private Animation anim;
     private float time = 0;
-    private float bounds = 4.1f;
     private Vector3 flySpeed = Vector3.zero;
 
     void Update()
@@ -13,17 +12,18 @@ public class Bird : MonoBehaviour
         if (!GameMgr.S.isGameStart || GameMgr.S.IsGameOver) return;
         if (time > 0) FlyUpUpdate();
         else PadUpdate();
-
-        if (transform.position.y < -bounds || transform.position.y > bounds)
+        
+        if (transform.position.y < -EnvGlobalValue.BirdBounds || 
+            transform.position.y > EnvGlobalValue.BirdBounds)
         {
             GameMgr.S.GameOver();
             Death();
         }
     }
-    
+
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Score")
+        if (other.gameObject.CompareTag("Score"))
         {
             GameMgr.S.OnScore();
         }
@@ -38,7 +38,7 @@ public class Bird : MonoBehaviour
     {
         StopCoroutine("Decline");
         gameObject.GetComponent<Collider>().enabled = true;
-        transform.position = new Vector3(0, 1.5f, 0);
+        transform.position = new Vector3(0, EnvGlobalValue.BirdInitY, 0);
         mesh.transform.eulerAngles = new Vector3(0, 90, 0);
         anim.CrossFade("Idle", 0, PlayMode.StopAll);
     }

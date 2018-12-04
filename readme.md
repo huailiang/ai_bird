@@ -51,7 +51,7 @@ client:
 
 ### play game by operation
 
-![](/image/3.jpg)
+![](/image/5.jpg)
 
 每点击一次屏幕，小鸟就上飞一次，通过所有关卡
 

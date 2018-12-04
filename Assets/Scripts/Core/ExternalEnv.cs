@@ -9,6 +9,8 @@ public class ExternalEnv : BaseEnv
 
     Queue<BirdAction> m_oDataQueue = new Queue<BirdAction>();
 
+    protected override bool birdFly { get { return false; } }
+
     public override void Init()
     {
         base.Init();
@@ -32,6 +34,7 @@ public class ExternalEnv : BaseEnv
 
     public override void OnUpdate(float delta)
     {
+        base.OnUpdate(delta);
         Monitor.Enter(m_oDataQueue);
         if (m_oDataQueue.Count > 0)
         {

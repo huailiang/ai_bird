@@ -18,6 +18,8 @@ public class InternalEnv : BaseEnv
     TFSession session;
 #endif
 
+    protected override bool birdFly { get { return false; } }
+
     public override void Init()
     {
         base.Init();

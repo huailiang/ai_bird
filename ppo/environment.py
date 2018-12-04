@@ -63,6 +63,7 @@ class UnityEnvironment(object):
 
                 p = self._conn.recv(self._buffer_size).decode('utf-8')
                 p = json.loads(p)
+                self._loaded = True
                 # print p
             except socket.timeout as e:
                 raise UnityTimeOutException(
@@ -76,12 +77,13 @@ class UnityEnvironment(object):
                 self.model = Model()
             else:
                 self.ppo = PPO()
+
             self.isBreak = False
             self.all_ep_r = []
             self.buffer_s, self.buffer_a, self.buffer_r = [], [], []
             self.ep_r = 0
             self.tick = 0
-            self._loaded = True
+            
             self._recv_bytes()
             logger.info("server quit!")
         except UnityEnvironmentException:

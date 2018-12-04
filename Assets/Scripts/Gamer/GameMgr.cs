@@ -45,7 +45,6 @@ public class GameMgr : MonoBehaviour
             envs = new ScriptableObject[num];
             foreach (TrainMode mode in System.Enum.GetValues(typeof(TrainMode)))
             {
-
                 envs[(int)mode] = ScriptableObject.CreateInstance(mode.ToString() + "Env");
             }
         }
@@ -83,7 +82,7 @@ public class GameMgr : MonoBehaviour
         env.OnUpdate(Time.deltaTime);
     }
 
-    public void ManuControl()
+    public void ManuControl(bool fly)
     {
         if (IsGameOver)
         {
@@ -93,11 +92,11 @@ public class GameMgr : MonoBehaviour
         }
         else if (!isGameStart)
         {
-            GameMgr.S.isGameStart = true;
+            isGameStart = true;
             Debug.Log("Game Start");
             EventHandle.Command(COMMAND_TYPE.GAME_START);
         }
-        else
+        else if (fly)
         {
             mainBird.FlyUp();
         }

@@ -8,6 +8,7 @@ public abstract class BaseEnv : ScriptableObject
     protected int last_r = 1;
     protected int[] last_state;
     protected BirdAction last_action = BirdAction.PAD;
+    protected abstract bool birdFly { get; }
 
     public virtual void Init()
     {
@@ -49,7 +50,13 @@ public abstract class BaseEnv : ScriptableObject
 #endif
     }
 
-    public virtual void OnUpdate(float delta) { }
+    public virtual void OnUpdate(float delta)
+    {
+        if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
+        {
+            GameMgr.S.ManuControl(birdFly);
+        }
+    }
 
     public abstract void OnTick();
 

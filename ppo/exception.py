@@ -1,5 +1,5 @@
 import logging
-logger = logging.getLogger("unityagents")
+logger = logging.getLogger("bird")
 
 class UnityEnvironmentException(Exception):
     """

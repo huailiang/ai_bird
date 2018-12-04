@@ -27,7 +27,7 @@ class Model(object):
             self.graph_def.ParseFromString(f.read())
             self.output = tf.import_graph_def(self.graph_def,
                 input_map={'state:0': self.xstate},
-                return_elements=['recurrent_out:0', 'probweights:0'])
+                return_elements=['pi/probweights:0'])
 
     def update(self, s, a, r):
         self.sess.run(self.update_oldpi_op)
@@ -41,6 +41,6 @@ class Model(object):
     def choose_action(self, s):
         
         result = self.sess.run(self.output, feed_dict = { self.xstate: [s]})
-        prob_weights=result[1]
+        prob_weights=result[0]
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel())
         return action

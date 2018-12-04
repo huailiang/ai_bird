@@ -37,6 +37,7 @@ class UnityEnvironment(object):
         self._buffer_size = 10240
         self._loaded = False
         self._open_socket = False
+        self.isBreak = False
         logger.info("unity env try created, socket with port:{}".format(str(self.port)))
 
         try:
@@ -72,9 +73,10 @@ class UnityEnvironment(object):
 
             if not os.path.exists("models"):
                 os.makedirs("models")
-
-            self.model = Model()
-            self.ppo = PPO()
+            if not Train:
+                self.model = Model()
+            else:
+                self.ppo = PPO()
             self.all_ep_r = []
             self.buffer_s, self.buffer_a, self.buffer_r = [], [], []
             self.ep_r = 0
@@ -93,37 +95,39 @@ class UnityEnvironment(object):
 
     def _recv_bytes(self):
         try:
-            s = self._conn.recv(self._buffer_size)
-            message_length = struct.unpack("I", bytearray(s[:4]))[0]
-            s = s[4:]
-            while len(s) > message_length:
-                s1 = s[0:message_length]
-                self._recv_str(s1)
-                s = s[message_length:]
-            while len(s) < message_length:
-                s += self._conn.recv(self._buffer_size)
+            if not self.isBreak:
+                s = self._conn.recv(self._buffer_size)
+                message_length = struct.unpack("I", bytearray(s[:4]))[0]
+                s = s[4:]
+                while len(s) > message_length:
+                    s1 = s[0:message_length]
+                    self._recv_str(s1)
+                    s = s[message_length:]
+                while len(s) < message_length and not self.isBreak:
+                    s += self._conn.recv(self._buffer_size)
 
-            self._recv_str(s)
+                self._recv_str(s)
         except socket.timeout as e:
             logger.warning("timeout, will close socket")
             self.close()
 
             
     def _recv_str(self,s):
-        p = json.loads(s.decode("utf-8"))
-        code = p["Code"]
-        if code == "EEXIT":
-            self.close()
-        elif code == "CHOIC":
-            state = p["state"]
-            self._send_choice(state)
-            self._recv_bytes()
-        elif code == "UPDAT":
-            self._to_learn(p)
-            self._recv_bytes()
-        else:
-            logging.error("\nunknown code:{0}".format(str(code)))
-            self._recv_bytes()
+        if not self.isBreak:
+            p = json.loads(s.decode("utf-8"))
+            code = p["Code"]
+            if code == "EEXIT":
+                self.close()
+            elif code == "CHOIC":
+                state = p["state"]
+                self._send_choice(state)
+                self._recv_bytes()
+            elif code == "UPDAT":
+                self._to_learn(p)
+                self._recv_bytes()
+            else:
+                logging.error("\nunknown code:{0}".format(str(code)))
+                self._recv_bytes()
     
 
     def _send_choice(self, state):
@@ -170,6 +174,7 @@ class UnityEnvironment(object):
 
     def close(self):
         logger.info("env closed")
+        self.isBreak = True
         if self._loaded & self._open_socket:
             self._conn.send(b"EXIT")
             self._conn.close()

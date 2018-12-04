@@ -63,6 +63,9 @@ public class Communicator
         catch (Exception e)
         {
             Debug.LogError(e.Message);
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#endif
         }
     }
 

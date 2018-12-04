@@ -85,7 +85,7 @@ class PPO(object):
         prob_weights = self.sess.run(self.pi, feed_dict={self.tfs: s[None, :]})
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel()) 
         tf.identity(prob_weights, name='probweights')
-        logger.info("action:{1} prob:{0}".format(str(action), str(self.aloss)))
+        logger.info("action:{0} prob:{1}".format(str(action), str(prob_weights)))
         return action
 
     def get_v(self, s):

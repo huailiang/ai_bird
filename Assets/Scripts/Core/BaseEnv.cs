@@ -38,7 +38,7 @@ public abstract class BaseEnv : ScriptableObject
     public int[] GetCurrentState()
     {
 #if ENABLE_PILLAR
-        int[] p_st = PillarManager.S.GetPillarState();
+        int[] p_st = GameMgr.S.pillMgr.GetPillarState();
         int b_st = GameMgr.S.mainBird.GetState();
         int[] rst = new int[3];
         rst[0] = p_st[0];

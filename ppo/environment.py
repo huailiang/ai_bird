@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bird")
 
 # 设置最大递归次数
-sys.setrecursionlimit(1000000) 
+sys.setrecursionlimit(10000000) 
 
 GAMMA = 0.9
 BATCH = 8

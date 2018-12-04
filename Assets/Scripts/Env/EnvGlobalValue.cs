@@ -36,4 +36,9 @@
     /// </summary>
     public const float BirdInitY = 1.5f;
 
+    /// <summary>
+    /// 柱子初始位置
+    /// </summary>
+    public const int PillarBornX = 12;
+
 }

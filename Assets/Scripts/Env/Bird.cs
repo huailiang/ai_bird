@@ -9,7 +9,7 @@ public class Bird : MonoBehaviour
 
     void Update()
     {
-        if (!GameMgr.S.isGameStart || GameMgr.S.IsGameOver) return;
+        if (!GameMgr.S.IsGameStart || GameMgr.S.IsGameOver) return;
         if (time > 0) FlyUpUpdate();
         else PadUpdate();
         

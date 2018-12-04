@@ -1,18 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class PillarManager : MonoBehaviour
+public class PillarMgr 
 {
-    private static PillarManager instance;
-    public static PillarManager S { get { return instance; } }
     private static List<Pillar> pillars = new List<Pillar>();
-
-    [SerializeField] private Pillar pillarTemplate;
+    private Pillar pillarTemplate;
     private float oldTime = 0;
+    
+    public PillarMgr(Pillar temp)
+    {
+        pillarTemplate = temp;
+    }
 
-    void Awake() { instance = this; }
-
-    void Update()
+    public void Update(float delta)
     {
         if (GameMgr.S.IsGameOver)
         {
@@ -20,10 +20,10 @@ public class PillarManager : MonoBehaviour
             return;
         }
 
-        if (GameMgr.S.isGameStart && Time.time - oldTime > 1.5f)
+        if (GameMgr.S.IsGameStart && Time.time - oldTime > 1.5f)
         {
 #if ENABLE_PILLAR
-            this.CreatePillar();
+            CreatePillar();
             oldTime = Time.time;
 #endif
         }
@@ -31,12 +31,11 @@ public class PillarManager : MonoBehaviour
 
     void CreatePillar()
     {
-        Pillar pillar = Instantiate(this.pillarTemplate) as Pillar;
-
-        pillar.transform.position = new Vector3(12, 0, 0);
+        Pillar pillar = GameObject.Instantiate(pillarTemplate) as Pillar;
+        pillar.transform.position = new Vector3(EnvGlobalValue.PillarBornX, 0, 0);
         pillar.transform.localScale = Vector3.one;
-        int height = Random.Range(0, 3);
-        pillar.SetHeight(height);
+        int state = Random.Range(0, 2);
+        pillar.SetState(state);
         pillars.Add(pillar);
     }
 
@@ -76,7 +75,7 @@ public class PillarManager : MonoBehaviour
         }
         if (pillar != null)
         {
-            ret[0] = pillar.height;
+            ret[0] = pillar.State;
         }
         ret[1] = Mathf.FloorToInt(_dis / 2f);
         return ret;

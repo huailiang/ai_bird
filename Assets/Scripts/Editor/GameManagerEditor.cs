@@ -13,6 +13,8 @@ public class GameManagerEditor : Editor
 
         SerializedProperty bt = serializedBrain.FindProperty("mainBird");
         EditorGUILayout.PropertyField(bt);
+        bt = serializedBrain.FindProperty("pillar");
+        EditorGUILayout.PropertyField(bt);
         bt = serializedBrain.FindProperty("mode");
         EditorGUILayout.PropertyField(bt);
         mgr.FillEnv();

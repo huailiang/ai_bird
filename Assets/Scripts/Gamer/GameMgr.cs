@@ -14,26 +14,31 @@ public class GameMgr : MonoBehaviour
     public static GameMgr S { get { return instance; } }
 
     [SerializeField] ScriptableObject[] envs;
-
-    private BaseEnv env;
-
-    public bool isGameStart = false;
-
-    private bool isGameOver = false;
-
-    public Bird mainBird;
-
+    [SerializeField] Pillar pillar;
     [SerializeField] private TrainMode mode = TrainMode.Internal;
 
+    private BaseEnv env;
+    private bool isGameStart = false;
+    private bool isGameOver = false;
     private float resetTime = 0f;
-
+    private static float tickTime;
+    private int epsilon = 0;
     private GUIStyle style;
-
     private float lastSignTime = float.MinValue;
 
-    private static float tickTime;
+    public Bird mainBird;
+    public PillarMgr pillMgr;
+
+    const float fpsMeasurePeriod = 0.5f;
+    private int m_FpsAccumulator = 0;
+    private float m_FpsNextPeriod = 0;
+    private float m_TotalTime = 0f;
+    private float m_CurrentFps;
+    private float m_SignTime = 0;
 
     public bool IsGameOver { get { return isGameOver; } }
+
+    public bool IsGameStart { get { return isGameStart; } }
 
     public BaseEnv Env { get { return env; } }
 
@@ -55,22 +60,26 @@ public class GameMgr : MonoBehaviour
     void Awake()
     {
         instance = this;
-        tickTime = 15 * Time.deltaTime;
+        Application.targetFrameRate = 60;
+        tickTime = 10 * Time.deltaTime;
         style = new GUIStyle();
-        style.fontSize = 24;
+        style.fontSize = 20;
         style.normal.textColor = Color.red;
         FillEnv();
+        pillMgr = new PillarMgr(pillar);
         env.Init();
     }
 
 
     void OnGUI()
     {
-        GUI.Label(new Rect(20, 20, 100, 30), "TIME: " + (Time.time - resetTime).ToString("f2"), style);
+        string str = string.Format("fps:{0} epsilon:{2} run:{1}", m_CurrentFps.ToString("f2"), (Time.time - resetTime).ToString("f2"), epsilon);
+        GUI.Label(new Rect(20, 20, 100, 30), str, style);
     }
 
     void Update()
     {
+        float delta = Time.deltaTime;
         if (isGameStart)
         {
             if (Time.time - lastSignTime > tickTime)
@@ -79,12 +88,24 @@ public class GameMgr : MonoBehaviour
                 lastSignTime = Time.time;
             }
         }
-        env.OnUpdate(Time.deltaTime);
+        env.OnUpdate(delta);
+        pillMgr.Update(delta);
+
+        m_FpsAccumulator++;
+        m_TotalTime += Time.realtimeSinceStartup - m_SignTime;
+        m_SignTime = Time.realtimeSinceStartup;
+        if (Time.realtimeSinceStartup > m_FpsNextPeriod)
+        {
+            m_CurrentFps = m_FpsAccumulator / m_TotalTime;
+            m_TotalTime = 0;
+            m_FpsAccumulator = 0;
+            m_FpsNextPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
+        }
     }
 
     public void ManuControl(bool fly)
     {
-        if (IsGameOver)
+        if (isGameOver)
         {
             ResetGame();
             Debug.Log("Game Reset");
@@ -103,19 +124,14 @@ public class GameMgr : MonoBehaviour
     }
 
 
-    public bool RespondByDecision(BirdAction action)
+    public void RespondByDecision(BirdAction action)
     {
-        if (!GameMgr.S.isGameStart || IsGameOver)
-        {
-            return false;
-        }
-        else
+        if (isGameStart && !isGameOver)
         {
             if (action == BirdAction.FLY)
             {
                 mainBird.FlyUp();
             }
-            return true;
         }
     }
 
@@ -154,8 +170,9 @@ public class GameMgr : MonoBehaviour
 
     public void ResetGame()
     {
+        epsilon++;
         resetTime = Time.time;
-        PillarManager.S.ClearPillars();
+        pillMgr.ClearPillars();
         mainBird.ResetPos();
         isGameStart = false;
         isGameOver = false;

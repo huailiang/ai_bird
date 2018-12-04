@@ -2,26 +2,29 @@
 
 public class Pillar : MonoBehaviour
 {
-    private Transform mTransform;
-    public int height = 0;
+    private Transform _transform;
+    private int _state = 0;
 
-    void Awake() { mTransform = this.transform; }
+    public int State { get { return _state; } }
+
+    void Awake() { _transform = this.transform; }
 
     void Update()
     {
         if (GameMgr.S.IsGameOver) return;
-        mTransform.Translate(new Vector3(-EnvGlobalValue.MoveSpeed * Time.deltaTime, 0, 0));
-        if (mTransform.position.x < -11)
+        _transform.Translate(new Vector3(-EnvGlobalValue.MoveSpeed * Time.deltaTime, 0, 0));
+        if (_transform.position.x < -11)
         {
-            PillarManager.S.DeletePillar(this);
+            GameMgr.S.pillMgr.DeletePillar(this);
         }
     }
 
-    public void SetHeight(int height)
+    public void SetState(int state)
     {
-        Vector3 pos = mTransform.position;
-        pos.y = height * 2;
-        this.height = height;
-        mTransform.position = pos;
+        Vector3 pos = _transform.position;
+        pos.y = 0.5f + state;
+        this._state = state;
+        _transform.position = pos;
     }
+
 }

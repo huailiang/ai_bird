@@ -5715,7 +5715,7 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.24892417, y: 0.03989187, z: 0.000012993813}
     m_Extent: {x: 0.25227198, y: 0.30807683, z: 0.343041}
   m_DirtyAABB: 0
---- !u!114 &471503920
+--- !u!114 &526430936
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5723,10 +5723,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 927e0b1d731c84588b4809f03fa69a3a, type: 3}
+  m_Script: {fileID: 11500000, guid: 0ea822b6dfa804c66a2b205925e363be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  graphModel: {fileID: 4900000, guid: a346a4aff2e16418f80834dfcf7e123c, type: 3}
 --- !u!1 &539434251
 GameObject:
   m_ObjectHideFlags: 0
@@ -5819,17 +5818,6 @@ Transform:
   m_Father: {fileID: 1277427627}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &693646827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ea822b6dfa804c66a2b205925e363be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &726541270
 GameObject:
   m_ObjectHideFlags: 0
@@ -10631,6 +10619,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &891471202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99be660759a624788b8d8e3aadd5197f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &960332994
 Prefab:
   m_ObjectHideFlags: 0
@@ -11142,6 +11141,18 @@ Transform:
   m_Father: {fileID: 1258139809}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1355499693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 927e0b1d731c84588b4809f03fa69a3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphModel: {fileID: 0}
 --- !u!1 &1373095509
 GameObject:
   m_ObjectHideFlags: 0
@@ -11790,12 +11801,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   envs:
-  - {fileID: 471503920}
-  - {fileID: 693646827}
+  - {fileID: 1355499693}
+  - {fileID: 526430936}
+  - {fileID: 891471202}
   isGameStart: 0
   mainBird: {fileID: 402347494}
-  mode: 2
-  isWaiting: 0
+  mode: 1
 --- !u!1 &2083200957
 GameObject:
   m_ObjectHideFlags: 0

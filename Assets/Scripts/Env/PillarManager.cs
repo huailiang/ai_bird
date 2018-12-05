@@ -1,12 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class PillarMgr 
+public class PillarMgr
 {
-    private static List<Pillar> pillars = new List<Pillar>();
+    private Pillar currPillar;
+
+    private Queue<Pillar> recyle_pool = new Queue<Pillar>();
+
+    private List<Pillar> run_pool = new List<Pillar>();
+
     private Pillar pillarTemplate;
     private float oldTime = 0;
-    
+
     public PillarMgr(Pillar temp)
     {
         pillarTemplate = temp;
@@ -20,7 +25,7 @@ public class PillarMgr
             return;
         }
 
-        if (GameMgr.S.IsGameStart && Time.time - oldTime > 1.5f)
+        if (GameMgr.S.IsGameStart && Time.time - oldTime > 2.5f)
         {
 #if ENABLE_PILLAR
             CreatePillar();
@@ -31,53 +36,51 @@ public class PillarMgr
 
     void CreatePillar()
     {
-        Pillar pillar = GameObject.Instantiate(pillarTemplate) as Pillar;
+        Pillar pillar;
+        if (recyle_pool.Count > 0)
+        {
+            pillar = recyle_pool.Dequeue();
+        }
+        else
+        {
+            pillar = GameObject.Instantiate(pillarTemplate) as Pillar;
+        }
+        currPillar = pillar;
         pillar.transform.position = new Vector3(EnvGlobalValue.PillarBornX, 0, 0);
         pillar.transform.localScale = Vector3.one;
         int state = Random.Range(0, 2);
         pillar.SetState(state);
-        pillars.Add(pillar);
+        run_pool.Add(pillar);
     }
 
-    public void DeletePillar(Pillar _pillar)
+    public void RecylePillar(Pillar _pillar)
     {
-        pillars.Remove(_pillar);
-        Object.Destroy(_pillar.gameObject);
+        run_pool.Remove(_pillar);
+        recyle_pool.Enqueue(_pillar);
+        _pillar.Recyle();
     }
-    
-    public void ClearPillars()
+
+    public void Clear()
     {
-        foreach (var pillar in pillars)
+        for (int i = 0; i < run_pool.Count; i++)
         {
-            if (pillar.gameObject != null)
-                Object.Destroy(pillar.gameObject);
+            recyle_pool.Enqueue(run_pool[i]);
+            run_pool[i].Recyle();
         }
-        pillars.Clear();
+        run_pool.Clear();
+        currPillar = null;
     }
 
-    
+
     public int[] GetPillarState()
     {
         int[] ret = new int[2];
-        float _dis = 1000;
-        Pillar pillar = null;
-        if (pillars.Count > 0)
+        if (currPillar != null)
         {
-            for (int i = 0; i < pillars.Count; i++)
-            {
-                Vector3 pos = pillars[i].transform.position;
-                if (pos.x > 0 && pos.x < _dis)
-                {
-                    _dis = pos.x;
-                    pillar = pillars[i];
-                }
-            }
+            ret[0] = currPillar.State;
+            float _dis = currPillar.transform.position.x;
+            ret[1] = Mathf.FloorToInt(_dis / 2f);
         }
-        if (pillar != null)
-        {
-            ret[0] = pillar.State;
-        }
-        ret[1] = Mathf.FloorToInt(_dis / 2f);
         return ret;
     }
 

@@ -61,7 +61,7 @@ public class GameMgr : MonoBehaviour
     {
         instance = this;
         Application.targetFrameRate = 60;
-        tickTime = 10 * Time.deltaTime;
+        tickTime = 15 * Time.deltaTime;
         style = new GUIStyle();
         style.fontSize = 20;
         style.normal.textColor = Color.red;
@@ -153,7 +153,7 @@ public class GameMgr : MonoBehaviour
     {
         isGameOver = true;
         EventHandle.Command(COMMAND_TYPE.GAME_OVERD);
-
+        pillMgr.Clear();
         if (mode == TrainMode.External || mode == TrainMode.Internal)
         {
             StartCoroutine(RestartGame());
@@ -178,7 +178,6 @@ public class GameMgr : MonoBehaviour
     {
         epsilon++;
         resetTime = Time.time;
-        pillMgr.ClearPillars();
         mainBird.ResetPos();
         isGameStart = false;
         isGameOver = false;

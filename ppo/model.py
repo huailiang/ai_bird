@@ -28,7 +28,7 @@ class Model(object):
             self.graph_def.ParseFromString(f.read())
             self.output = tf.import_graph_def(self.graph_def,
                 input_map={'state:0': self.xstate},
-                return_elements=['probweights:0'])
+                return_elements=['pi/probweights:0'])
 
     def update(self, s, a, r):
         self.sess.run(self.update_oldpi_op)

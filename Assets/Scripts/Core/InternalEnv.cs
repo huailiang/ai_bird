@@ -49,7 +49,6 @@ public class InternalEnv : BaseEnv
             {
                 UpdateState(last_state, state, last_r, last_action);
             }
-
             //do next loop
             BirdAction action = choose_action(state);
             GameMgr.S.RespondByDecision(action);
@@ -63,10 +62,12 @@ public class InternalEnv : BaseEnv
     {
 #if TensorFlow
         var runner = session.GetRunner();
-        float[,] sample = new float[1, 1];
-        // sample[0, 0] = state;
-        TFTensor t = new TFTensor(sample);
-        runner.AddInput(graph["state"][0], t);
+        float[,] fstate = new float[1, 3];
+        for (int i = 0; i < state.Length; i++)
+        {
+            fstate[0, i] = state[i];
+        }
+        runner.AddInput(graph["state"][0], fstate);
         runner.Fetch(graph["pi/probweights"][0]);
         TFTensor[] networkOutput;
         try
@@ -82,12 +83,11 @@ public class InternalEnv : BaseEnv
             }
             finally
             {
-                throw new System.Exception(errorMessage);
+                throw new System.Exception(errorMessage + "  \n" + e.StackTrace);
             }
         }
-        // Debug.Log(networkOutput.Length);
         float[,] output = (float[,])networkOutput[0].GetValue();
-        Debug.Log("choice action: " + output[0, 0] + "  " + output[0, 1]);
+        Debug.Log(string.Format("pi/probweights:{0},{1} ", output[0, 0], output[0, 1]));
         int rand = Random.Range(0, 100);
         return rand < (int)(output[0, 0] * 100) ? BirdAction.FLY : BirdAction.PAD;
 #else

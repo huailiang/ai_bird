@@ -9,7 +9,7 @@ public abstract class BaseEnv : ScriptableObject
     protected int[] last_state;
     protected int total_r = 0;
     protected BirdAction last_action = BirdAction.PAD;
-    
+
     public int Score { get { return total_r; } }
 
     protected abstract bool birdFly { get; }
@@ -35,7 +35,7 @@ public abstract class BaseEnv : ScriptableObject
 
     void OnDied(object arg)
     {
-        last_r = -100;
+        last_r = -2000;
     }
 
     public virtual void OnApplicationQuit() { }
@@ -71,7 +71,7 @@ public abstract class BaseEnv : ScriptableObject
     public abstract BirdAction choose_action(int[] state);
 
     public abstract void UpdateState(int[] state, int[] state_, int rewd, BirdAction action);
-    
+
     public virtual void OnRestart(int[] state) { }
 
     public virtual void OnInspector() { }

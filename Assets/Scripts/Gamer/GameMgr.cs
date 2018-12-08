@@ -29,13 +29,6 @@ public class GameMgr : MonoBehaviour
     public Bird mainBird;
     public PillarMgr pillMgr;
 
-    const float fpsMeasurePeriod = 0.5f;
-    private int m_FpsAccumulator = 0;
-    private float m_FpsNextPeriod = 0;
-    private float m_TotalTime = 0f;
-    private float m_CurrentFps;
-    private float m_SignTime = 0;
-
     public bool IsGameOver { get { return isGameOver; } }
 
     public bool IsGameStart { get { return isGameStart; } }
@@ -70,17 +63,10 @@ public class GameMgr : MonoBehaviour
         env.Init();
     }
 
-
     void OnGUI()
     {
-        string str = string.Format("frame:{0} ", m_CurrentFps.ToString("f2"));
-        GUI.Label(new Rect(20, 20, 100, 30), str, style);
-        str = string.Format("runer:{0}", (Time.time - resetTime).ToString("f2"));
-        GUI.Label(new Rect(20, 50, 100, 30), str, style);
-        str = string.Format("epsln:{0}", epsilon);
-        GUI.Label(new Rect(20, 80, 100, 30), str, style);
-        str = string.Format("score:{0}", env.Score);
-        GUI.Label(new Rect(20, 110, 100, 30), str, style);
+        string str = string.Format("round:{0} timer:{1}", epsilon, (Time.time - resetTime).ToString("f2"));
+        GUI.Label(new Rect(30, 30, 100, 30), str, style);
     }
 
     void Update()
@@ -96,17 +82,6 @@ public class GameMgr : MonoBehaviour
         }
         env.OnUpdate(delta);
         pillMgr.Update(delta);
-
-        m_FpsAccumulator++;
-        m_TotalTime += Time.realtimeSinceStartup - m_SignTime;
-        m_SignTime = Time.realtimeSinceStartup;
-        if (Time.realtimeSinceStartup > m_FpsNextPeriod)
-        {
-            m_CurrentFps = m_FpsAccumulator / m_TotalTime;
-            m_TotalTime = 0;
-            m_FpsAccumulator = 0;
-            m_FpsNextPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
-        }
     }
 
     public void ManuControl(bool fly)

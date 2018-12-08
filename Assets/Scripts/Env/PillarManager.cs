@@ -48,7 +48,7 @@ public class PillarMgr
         currPillar = pillar;
         pillar.transform.position = new Vector3(EnvGlobalValue.PillarBornX, 0, 0);
         pillar.transform.localScale = Vector3.one;
-        int state = Random.Range(0, 2);
+        int state = 1;//Random.Range(0, 2);
         pillar.SetState(state);
         run_pool.Add(pillar);
     }

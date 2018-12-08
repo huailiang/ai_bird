@@ -29,8 +29,8 @@ git clone https://github.com/huailiang/bird
 #切换到PolicyGradient
 git checkout PolicyGradient
 
-#切换到ppo分支
-git checkout ppo
+#切换到mulstate分支
+git checkout mulstate
 
 ```
 

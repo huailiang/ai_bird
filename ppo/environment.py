@@ -34,7 +34,7 @@ GAMMA = 0.9
 BATCH = 8
 EP_LEN = 200
 all_ep_r = []
-Train = True
+Train = False
 
 
 class UnityEnvironment(object):

@@ -97,8 +97,8 @@ client:
 运行游戏，你就可以看到训练好的小鸟就可以不断闯关了。
 
 
-## CopyRight
+## Contact
 
-penghuailiang: peng_huailiang@qq.com
+Email: peng_huailiang@qq.com
 
-欢迎关注作者博客：https://huailiang.github.io
+Blog:  https://huailiang.github.io

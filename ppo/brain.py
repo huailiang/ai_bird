@@ -1,5 +1,12 @@
 # coding=utf8
 
+__author__ = 'penghuailiang'
+
+'''
+algorithm
+'''
+
+
 import logging
 import numpy as np
 import tensorflow as tf

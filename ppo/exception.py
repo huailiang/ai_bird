@@ -1,3 +1,12 @@
+#coding=utf-8
+
+__author__ = 'penghuailiang'
+
+'''
+exception handler
+'''
+
+
 import logging
 logger = logging.getLogger("bird")
 

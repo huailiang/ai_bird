@@ -1,5 +1,6 @@
 # coding=utf8
 
+__author__ = 'penghuailiang'
 
 """
 运行的是ppo 环境

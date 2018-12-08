@@ -1,5 +1,12 @@
 # coding=utf8
 
+__author__ = 'penghuailiang'
+
+'''
+train & test env
+'''
+
+
 import atexit
 import io
 import glob
@@ -135,7 +142,6 @@ class UnityEnvironment(object):
     def _send_choice(self, state):
         try:
             obvs = np.array(state)
-            logger.info("recv state:{0}".format(str(state)))
             if Train:
                 action = self.ppo.choose_action(obvs)
                 self._conn.send(str(action).encode())
@@ -152,7 +158,7 @@ class UnityEnvironment(object):
             state  = j["state"]
             action = j["action"]
             rewd = j["rewd"]
-            # logger.info("get action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
+            logger.info("update action is:{0}, state:{1}, rewd:{2}".format(str(action),str(state), str(rewd)))
             nps=np.array(state)[np.newaxis, :]
             nps_=np.array(state_)[np.newaxis, :]
             npa=np.array([action])

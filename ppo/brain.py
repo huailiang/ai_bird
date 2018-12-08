@@ -78,13 +78,13 @@ class PPO(object):
         with tf.variable_scope(name):
             l_1 = tf.layers.dense(self.tfs, 256, tf.nn.relu, trainable=trainable)
             a_prob = tf.layers.dense(l_1, A_DIM, tf.nn.softmax, trainable=trainable)
+            tf.identity(a_prob, name='probweights')
         params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=name)
         return a_prob, params
 
     def choose_action(self, s):
         prob_weights = self.sess.run(self.pi, feed_dict={self.tfs: s[None, :]})
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel()) 
-        tf.identity(prob_weights, name='probweights')
         logger.info("action:{0} prob:{1}".format(str(action), str(prob_weights)))
         return action
 
@@ -92,7 +92,7 @@ class PPO(object):
         return self.sess.run(self.v, {self.tfs: s})[0, 0]
 
     def output_nodes(self):
-        return ["state", "action", "advantage",  "critic/discounted_r", "probweights"]
+        return ["state", "action", "advantage",  "critic/discounted_r", "pi/probweights"]
 
     def freeze_graph(self):
         logger.info('**** Saved Model ****')

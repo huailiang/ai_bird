@@ -49,7 +49,7 @@ client:
 
 ## Mode
 
-### 手动操作试玩游戏
+### 1. 手动操作试玩游戏
 
 首先在unity中需要做如下设置：
 
@@ -57,11 +57,10 @@ client:
 
 玩法很简单：每点击一次屏幕，小鸟就拍打翅膀一次，从而获得一个升力。 否则的话，小鸟将不断下降。如果小鸟碰撞到地面或者柱子，就意味着游戏失败。通过不断闯关，飞行时间越长，得分也就越高。
 
-Unity Player Setting Symbols set as:
 
 ![](/image/6.jpg)
 
-### python环境中训练
+### 2. python环境中训练
 
 在unity中对GameManager(c#) 的模式设置为 External 
 
@@ -76,14 +75,14 @@ Unity Player Setting Symbols set as:
 如果想结束训练，停掉unity的运行按钮即可。此时python受到unity发过来的结束消息，会把当前神经网络的session和参数进行固化（freeze），生成protow文件（ppo.bytes）并保存到python当前目录（models/ppo/ppo.bytes）中。
 
 
-### 测试训练结果
+### 3. 测试训练结果
 
 设置跟训练环境一样，唯一不同的是需要把python的environment.py中的变量Train设置为False。
 
 此时python环境会直接加载上个步骤中训练好的结果（ppo.bytes），并根据客户端发来的请求自动的做出决策。
 
 
-### Unity中测试训练结果
+### 4.Unity中测试训练结果
 
 首先，你需要下载TFSharpPlugin这个插件，并且导入到Unity中。
 
@@ -98,15 +97,8 @@ Unity Player Setting Symbols set as:
 运行游戏，你就可以看到训练好的小鸟就可以不断闯关了。
 
 
-## Train
+## CopyRight
 
-- Ensure Env as requirement
-
-- Start with python main.py
-
-- Unity Gamemanager mode set external 
-
-- Start Unity
-
+penghuailiang: peng_huailiang@qq.com
 
 欢迎关注作者博客：https://huailiang.github.io

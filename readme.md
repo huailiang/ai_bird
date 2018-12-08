@@ -49,41 +49,53 @@ client:
 
 ## Mode
 
-### play game by operation
+### 手动操作试玩游戏
+
+首先在unity中需要做如下设置：
 
 ![](/image/5.jpg)
 
-每点击一次屏幕，小鸟就上飞一次，通过所有关卡
+玩法很简单：每点击一次屏幕，小鸟就拍打翅膀一次，从而获得一个升力。 否则的话，小鸟将不断下降。如果小鸟碰撞到地面或者柱子，就意味着游戏失败。通过不断闯关，飞行时间越长，得分也就越高。
 
 Unity Player Setting Symbols set as:
 
 ![](/image/6.jpg)
 
-### train in python 
+### python环境中训练
 
-GameManager(c#) set External 
+在unity中对GameManager(c#) 的模式设置为 External 
 
 ![](/image/2.jpg)
 
-environment(python) set Train = True
+在python环境中environment(python) 需要把 Train 变量设置为 True
 
 ![](/image/3.jpg)
 
-### test in python
+训练也启动python中的main.py, 此时socket会建立起来，并开始监听来自unity测的连接。unity启动后会自动尝试和python建立连接，连接成功之后，点击unity屏幕就开始train了。如果python启动后30S内没有收到来自unity的连接，会主动断开自身socket。
 
-as opration like train in python and set Train = False
+如果想结束训练，停掉unity的运行按钮即可。此时python受到unity发过来的结束消息，会把当前神经网络的session和参数进行固化（freeze），生成protow文件（ppo.bytes）并保存到python当前目录（models/ppo/ppo.bytes）中。
 
-### test in unity
 
-download TFSharpPlugin and import TFSharpPlugin to unity at first
+### 测试训练结果
 
-Unity Player Setting Symbols set as:
+设置跟训练环境一样，唯一不同的是需要把python的environment.py中的变量Train设置为False。
+
+此时python环境会直接加载上个步骤中训练好的结果（ppo.bytes），并根据客户端发来的请求自动的做出决策。
+
+
+### Unity中测试训练结果
+
+首先，你需要下载TFSharpPlugin这个插件，并且导入到Unity中。
+
+其次，需要在unity中需要开启宏：TensorFlow
 
 ![](/image/4.jpg)
 
-GameManager(c#) set Internal and drag tensorflow output to Graph model
+最后，你需要拷贝python中训练好的ppo.bytes到unity中，并且需要在unity中设置游戏模式设置为Internal, 并将ppo.bytes拖拽到graphModel
 
 ![](/image/1.jpg)
+
+运行游戏，你就可以看到训练好的小鸟就可以不断闯关了。
 
 
 ## Train

@@ -87,7 +87,7 @@ public class InternalEnv : BaseEnv
             }
         }
         float[,] output = (float[,])networkOutput[0].GetValue();
-        Debug.Log(string.Format("pi/probweights:{0},{1} ", output[0, 0], output[0, 1]));
+        Debug.Log(string.Format("pi/probweights, fly:{0} pad:{1} ", output[0, 0], output[0, 1]));
         int rand = Random.Range(0, 100);
         return rand < (int)(output[0, 0] * 100) ? BirdAction.FLY : BirdAction.PAD;
 #else
@@ -117,10 +117,10 @@ public class InternalEnv : BaseEnv
         {
             EditorGUILayout.HelpBox("Please provide a tensorflow graph as a bytes file.", MessageType.Error);
         }
-        graphScope =
-               EditorGUILayout.TextField(new GUIContent("Graph Scope",
-                   "If you set a scope while training your tensorflow model, " +
-                   "all your placeholder name will have a prefix. You must specify that prefix here."), graphScope);
+        // graphScope =
+        //        EditorGUILayout.TextField(new GUIContent("Graph Scope",
+        //            "If you set a scope while training your tensorflow model, " +
+        //            "all your placeholder name will have a prefix. You must specify that prefix here."), graphScope);
 #endif
     }
 

@@ -51,14 +51,17 @@ client:
 
 ### 1. 手动操作试玩游戏
 
-首先在unity中需要做如下设置：
+首先在unity中需要设置游戏模式为Player：
 
 ![](/image/5.jpg)
 
-玩法很简单：每点击一次屏幕，小鸟就拍打翅膀一次，从而获得一个升力。 否则的话，小鸟将不断下降。如果小鸟碰撞到地面或者柱子，就意味着游戏失败。通过不断闯关，飞行时间越长，得分也就越高。
-
+然后，需要开启柱子（障碍）选项，设置宏：ENABLE_PILLAR
 
 ![](/image/6.jpg)
+
+游戏的玩法很简单：每点击一次屏幕，小鸟就拍打翅膀一次，从而获得一个升力。 否则的话，小鸟将不断下降。如果小鸟碰撞到地面或者柱子，就意味着游戏失败。通过不断闯关，飞行时间越长，得分也就越高。
+
+
 
 ### 2. python环境中训练
 
@@ -70,9 +73,9 @@ client:
 
 ![](/image/3.jpg)
 
-训练也启动python中的main.py, 此时socket会建立起来，并开始监听来自unity测的连接。unity启动后会自动尝试和python建立连接，连接成功之后，点击unity屏幕就开始train了。如果python启动后30S内没有收到来自unity的连接，会主动断开自身socket。
+运行python中的main.py, 此时socket会建立起来，并开始监听来自unity侧的连接。unity启动后会自动尝试和python建立连接，连接成功之后，点击unity屏幕就开始train了。如果python启动后30S内没有收到来自unity的连接，会主动断开自身socket。
 
-如果想结束训练，停掉unity的运行按钮即可。此时python受到unity发过来的结束消息，会把当前神经网络的session和参数进行固化（freeze），生成protow文件（ppo.bytes）并保存到python当前目录（models/ppo/ppo.bytes）中。
+训练的过程中，不要点击屏幕，游戏失败后会自动的接着下一轮的循环。如果想结束训练，停掉unity的运行按钮即可。此时python收到unity发过来的结束消息，会把当前神经网络的session和参数进行固化（freeze），生成proto文件（ppo.bytes）并保存到python当前目录（models/ppo/）中。
 
 
 ### 3. 测试训练结果

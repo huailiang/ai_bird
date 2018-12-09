@@ -1,4 +1,5 @@
 <img src="image/7.gif" align="right" width=440>
+<br><br><br>><br><br>><br><br>
 
 <b>强化学习 游戏AI Trainning的代码工程</b>
 

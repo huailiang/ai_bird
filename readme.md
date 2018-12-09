@@ -1,11 +1,4 @@
-<iframe 
-    height=450 
-    width=800 
-    src="image/7.mp4" 
-    frameborder=0 
-    align="right"
-    allowfullscreen>
-</iframe>
+[![Watch the video](/image/7.mp4)
 
 
 <b>强化学习 游戏AI Trainning的代码工程</b>

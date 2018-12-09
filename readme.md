@@ -1,5 +1,4 @@
-[![Watch the video](/image/7.mp4)
-
+<img src="image/7.gif" align="right" width=440>
 
 <b>强化学习 游戏AI Trainning的代码工程</b>
 

@@ -1,8 +1,12 @@
-<p align="center">
-    <a href="https://huailiang.github.io/">
-    	<img src="https://avatars0.githubusercontent.com/u/12636841?s=460&v=4" width="320" height="300">
-    </a>
-</p>
+<iframe 
+    height=450 
+    width=800 
+    src="image/7.mp4" 
+    frameborder=0 
+    align="right"
+    allowfullscreen>
+</iframe>
+
 
 <b>强化学习 游戏AI Trainning的代码工程</b>
 
